@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-var Gist, Task, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
+var Gist, Task, createGist, exec, files, fromFiles, fromStdin, fs, gist, help, id, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
 Gist = require('node-gist');
 nopt = require('nopt');
 path = require('path');
 fs = require('fs');
 Task = require('parallel').Task;
 exec = require('child_process').exec;
-help = "\nCreate a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -a, --token     Manually set Github api token\n  -h, --help      You looking at it\n";
+help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -a, --token     Manually set Github api token\n  -h, --help      You looking at it\n";
 known_opts = {
   private: Boolean,
+  fetch: String,
   meta: Boolean,
   name: String,
   desc: String,
@@ -18,6 +19,7 @@ known_opts = {
   help: Boolean
 };
 short_opts = {
+  f: '--fetch',
   p: ['--private', 'true'],
   t: '--type',
   u: '--user',
@@ -30,6 +32,30 @@ options = nopt(known_opts, short_opts);
 if (options.help) {
   console.log(help);
   return process.exit();
+}
+if (options.fetch) {
+  id = options.fetch.split('/').pop();
+  if (!id) {
+    return process.exit();
+  }
+  gist = new Gist({
+    id: id
+  });
+  gist.load(function(error, meta) {
+    var content, filename, files, output, _i, _len;
+    files = Object.keys(this.data);
+    if (files.length === 0) {
+      return process.exit();
+    }
+    output = [];
+    for (_i = 0, _len = files.length; _i < _len; _i++) {
+      filename = files[_i];
+      content = this.data[filename];
+      output.push(content);
+    }
+    return process.stdout.write(output.join('\n----------\n'));
+  });
+  return;
 }
 files = options.argv.remain;
 is_stdin = options.argv.remain.length === 0;
@@ -116,7 +142,7 @@ fromFiles = function() {
   });
 };
 createGist = function(files) {
-  var file, gist, type, _i, _len;
+  var file, type, _i, _len;
   gist = new Gist({
     private: options.private || false,
     user: options.user,

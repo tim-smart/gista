@@ -11,12 +11,12 @@ Task     = require('parallel').Task
 
 # HELP
 help = """
-
 Create a Gist from a file or stdin using node-gist.
 
 gista -pd "My cool gist" [file.ext]
 
 Options:
+  -f, --fetch     Fetch a gist by id or url
   -p, --private   Mark the gist private
   -n, --name      Manually set the file name
   -d, --desc      Add a description
@@ -31,6 +31,7 @@ Options:
 # Isaac Schlueter
 known_opts =
   private: Boolean
+  fetch:   String
   meta:    Boolean
   name:    String
   desc:    String
@@ -40,6 +41,7 @@ known_opts =
   help:    Boolean
 
 short_opts =
+  f: '--fetch'
   p: ['--private', 'true']
   t: '--type'
   u: '--user'
@@ -55,8 +57,31 @@ if options.help
   console.log help
   return process.exit()
 
-files = options.argv.remain
+# Fetch mode? Fetch mode precedes gist creation.
+# We parse out the id from the value given to us, then use 
+# `Gist#load` to fetch the files.
+if options.fetch
+  id = options.fetch.split('/').pop()
+  return process.exit() unless id
 
+  gist = new Gist
+    id: id
+
+  gist.load (error, meta) ->
+    files = Object.keys @data
+    return process.exit() if files.length is 0
+
+    output = []
+
+    for filename in files
+      content = @data[filename]
+      output.push content
+
+    process.stdout.write output.join '\n----------\n'
+
+  return
+
+files = options.argv.remain
 
 # Are we reading from stdin, or reading from a list of files?
 is_stdin = options.argv.remain.length is 0
