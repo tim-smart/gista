@@ -19,10 +19,10 @@ git config --global github.user Tim-Smart
 git config --global github.token xxx
 
 # Create a Public gist
-$ echo "test" > gista
+$ echo "test" | gista
 
 # Create a private gist
-$ echo "test" > gista -p
+$ echo "test" | gista -p
 
 # Gist some files privately, with a description and custom type.
 $ gista -t js -pd "Cool gist" *.js
