@@ -9,7 +9,7 @@
 
 <span class="s2">Create a Gist from a file or stdin using node-gist.</span>
 
-<span class="s2">gist -pd &quot;</span><span class="nx">My</span> <span class="nx">cool</span> <span class="nx">gist</span><span class="s2">&quot; [file.ext]</span>
+<span class="s2">gista -pd &quot;</span><span class="nx">My</span> <span class="nx">cool</span> <span class="nx">gist</span><span class="s2">&quot; [file.ext]</span>
 
 <span class="s2">Options:</span>
 <span class="s2">  -p, --private   Mark the gist private</span>
@@ -18,12 +18,14 @@
 <span class="s2">  -t, --type      Manually set file extension</span>
 <span class="s2">  -u, --user      Manually set Github username</span>
 <span class="s2">  -a, --token     Manually set Github api token</span>
+<span class="s2">  -h, --help      You looking at it</span>
 
 <span class="s2">&quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Option parsing is done with <code>nopt</code> - a handy library sculpted by
 Isaac Schlueter</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">known_opts =</span>
   <span class="nv">private: </span><span class="nb">Boolean</span>
   <span class="nv">meta: </span>   <span class="nb">Boolean</span>
   <span class="nv">name: </span>   <span class="nb">String</span>
+  <span class="nv">desc: </span>   <span class="nb">String</span>
   <span class="nv">type: </span>   <span class="nb">String</span>
   <span class="nv">token: </span>  <span class="nb">String</span>
   <span class="nv">user: </span>   <span class="nb">String</span>
@@ -36,6 +38,7 @@ Isaac Schlueter</p>             </td>             <td class="code">             
   <span class="nv">a: </span><span class="s1">&#39;--token&#39;</span>
   <span class="nv">h: </span><span class="s1">&#39;--help&#39;</span>
   <span class="nv">n: </span><span class="s1">&#39;--name&#39;</span>
+  <span class="nv">d: </span><span class="s1">&#39;--desc&#39;</span>
 
 <span class="nv">options = </span><span class="nx">nopt</span> <span class="nx">known_opts</span><span class="p">,</span> <span class="nx">short_opts</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">help</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">help</span>

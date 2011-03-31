@@ -14,7 +14,7 @@ help = """
 
 Create a Gist from a file or stdin using node-gist.
 
-gist -pd "My cool gist" [file.ext]
+gista -pd "My cool gist" [file.ext]
 
 Options:
   -p, --private   Mark the gist private
@@ -23,6 +23,7 @@ Options:
   -t, --type      Manually set file extension
   -u, --user      Manually set Github username
   -a, --token     Manually set Github api token
+  -h, --help      You looking at it
 
 """
 
@@ -32,6 +33,7 @@ known_opts =
   private: Boolean
   meta:    Boolean
   name:    String
+  desc:    String
   type:    String
   token:   String
   user:    String
@@ -44,6 +46,7 @@ short_opts =
   a: '--token'
   h: '--help'
   n: '--name'
+  d: '--desc'
 
 options = nopt known_opts, short_opts
 

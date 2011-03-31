@@ -6,11 +6,12 @@ path = require('path');
 fs = require('fs');
 Task = require('parallel').Task;
 exec = require('child_process').exec;
-help = "\nCreate a Gist from a file or stdin using node-gist.\n\ngist -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -a, --token     Manually set Github api token\n";
+help = "\nCreate a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -a, --token     Manually set Github api token\n  -h, --help      You looking at it\n";
 known_opts = {
   private: Boolean,
   meta: Boolean,
   name: String,
+  desc: String,
   type: String,
   token: String,
   user: String,
@@ -22,7 +23,8 @@ short_opts = {
   u: '--user',
   a: '--token',
   h: '--help',
-  n: '--name'
+  n: '--name',
+  d: '--desc'
 };
 options = nopt(known_opts, short_opts);
 if (options.help) {
