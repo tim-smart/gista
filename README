@@ -1,0 +1,26 @@
+                _      __
+   ____  ____ _(_)____/ /_
+  / __ \/ __ `/ / ___/ __/
+ / / / / /_/ / (__  ) /_
+/_/ /_/\__, /_/____/\__/
+      /____/
+
+The cli gist client writen in CoffeeScript for Node.js.
+
+Install
+=======
+
+$ npm install -g ngist
+
+Usage
+=====
+
+# Set your token etc.
+git config --global github.user Tim-Smart
+git config --global github.token xxx
+
+# Create a Public gist
+$ echo "test" > gist
+
+# Create a private gist
+$ echo "test" > gist -p

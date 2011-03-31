@@ -1,0 +1,19 @@
+{
+  "name": "ngist",
+  "description": "Simple cli utility for using gist.github.com like a unix pro.",
+  "version": "0.0.1",
+  "author": "Tim Smart",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Tim-Smart/ngist.git"
+  },
+  "engine": [ "node >=0.4.4" ],
+  "dependencies": {
+    "node-gist": ">=0.0.2",
+    "nopt": ">=1.0.4",
+    "parallel": ">=0.2.1"
+  },
+  "bin": {
+    "ngist": "./bin/ngist"
+  }
+}
