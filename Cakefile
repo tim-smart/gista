@@ -9,11 +9,11 @@ run = (command, cb) ->
 task 'build', 'Create the ecmascript', ->
   invoke 'docs'
 
-  run 'coffee -cb -o bin src/ngist.coffee && mv bin/ngist.js bin/ngist', ->
-    fs.readFile 'bin/ngist', 'utf8', (error, code) ->
+  run 'coffee -cb -o bin src/gista.coffee && mv bin/gista.js bin/gista', ->
+    fs.readFile 'bin/gista', 'utf8', (error, code) ->
       throw error if error
-      fs.writeFile 'bin/ngist', "#!/usr/bin/env node\n#{code}", ->
-        run 'chmod 0755 bin/ngist'
+      fs.writeFile 'bin/gista', "#!/usr/bin/env node\n#{code}", ->
+        run 'chmod 0755 bin/gista'
 
 task 'docs', 'Use docco to create HTML docs', ->
   run 'docco src/*.coffee'
