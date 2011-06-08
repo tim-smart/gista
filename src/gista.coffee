@@ -2,7 +2,7 @@
 # ======================
 #
 # A handy little tool that allows you to use Gist like a unix pro.
-Gist     = require 'node-gist'
+gist     = require 'node-gist'
 nopt     = require 'nopt'
 path     = require 'path'
 fs       = require 'fs'

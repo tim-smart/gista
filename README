@@ -4,7 +4,7 @@
  \__, /_/____/\__/\__,_/  
 /____/
 
-The cli gist client writen in CoffeeScript for Node.js.
+The cli gist client writen with Node.js.
 
 Install
 =======
@@ -14,9 +14,11 @@ $ npm install -g gista
 Usage
 =====
 
-# Set your token etc.
+# Set your password etc.
+# Github has dropped the API token for API v3 auth.
+# So we have to use our password :(
 git config --global github.user Tim-Smart
-git config --global github.token xxx
+git config --global github.password xxx
 
 # Create a Public gist
 $ echo "test" | gista
