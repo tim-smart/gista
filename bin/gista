@@ -159,8 +159,8 @@ createGist = function(files) {
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
     name = file.name;
-    if (file.type) {
-      name = name + file.type;
+    if (type) {
+      name = name + type;
     }
     gist.files[name] = {
       content: file.content

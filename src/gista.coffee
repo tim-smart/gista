@@ -167,7 +167,7 @@ createGist = (files) ->
 
   for file in files
     name = file.name
-    name = name + file.type if file.type
+    name = name + type if type
     gist.files[name] =
       content : file.content
 
