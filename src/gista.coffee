@@ -2,7 +2,7 @@
 # ======================
 #
 # A handy little tool that allows you to use Gist like a unix pro.
-Gist     = require 'node-gist'
+Client   = require('node-gist').Client
 nopt     = require 'nopt'
 path     = require 'path'
 fs       = require 'fs'
@@ -22,7 +22,7 @@ Options:
   -d, --desc      Add a description
   -t, --type      Manually set file extension
   -u, --user      Manually set Github username
-  -a, --token     Manually set Github api token
+  -p, --password  Manually set Github api token
   -h, --help      You looking at it
 
 """
@@ -58,28 +58,27 @@ if options.help
   return process.exit()
 
 # Fetch mode? Fetch mode precedes gist creation.
-# We parse out the id from the value given to us, then use 
-# `Gist#load` to fetch the files.
 if options.fetch
-  id = options.fetch.split('/').pop()
-  return process.exit() unless id
+  client = new Client
+  return client.get "/#{options.fetch}", (error, gist) ->
+    throw error if error
 
-  gist = new Gist
-    id: id
+    files    = Object.keys(gist.files)
+    multiple = files.length > 1
 
-  gist.load (error, meta) ->
-    files = Object.keys @data
-    return process.exit() if files.length is 0
+    unless multiple
+      return console.log gist.files[files[0]].content
 
-    output = []
+    ret = []
+    buf = ''
+    for file in files
+      buf += file + '\n'
+      buf += new Array(file.length + 1).join '='
+      buf += '\n\n' + gist.files[file].content
+      ret.push buf
+      buf = ''
 
-    for filename in files
-      content = @data[filename]
-      output.push content
-
-    process.stdout.write output.join '\n----------\n'
-
-  return
+    console.log ret.join '\n\n'
 
 files = options.argv.remain
 
@@ -89,22 +88,22 @@ is_stdin = options.argv.remain.length is 0
 # We need to exhaust all the cases where the github user and token
 # could be stored.
 loadConfig = (callback) ->
-  options.user  = process.env.GITHUB_USER  unless options.user
-  options.token = process.env.GITHUB_TOKEN unless options.token
+  options.user     = process.env.GITHUB_USER     unless options.user
+  options.password = process.env.GITHUB_PASSWORD unless options.password
 
-  return callback() if options.user and options.token
+  return callback() if options.user and options.password
 
   task = new Task
 
-  task.add 'user', [exec, 'git config --global github.user']   unless options.user
-  task.add 'token', [exec, 'git config --global github.token'] unless options.token
+  task.add 'user', [exec, 'git config --global github.user']         unless options.user
+  task.add 'password', [exec, 'git config --global github.password'] unless options.password
 
   has_error = null
 
   task.run (name, error, stdout) ->
     if name is null
-      if has_error or options.user is null or options.token is null
-        options.user = options.token = null 
+      if has_error or options.user is null or options.password is null
+        options.user = options.token = null
       return callback has_error
 
     return has_error = error if error
@@ -128,7 +127,7 @@ fromStdin = ->
   process.stdin.on 'data', (chunk) ->
     data += chunk
   process.stdin.on 'end', ->
-    createGist [name: options.name or null, content: data]
+    createGist [name: options.name or 'stdin.txt', content: data]
 
 # Iterate over every file and grab the contents, ready to pass
 # onto `createGist`.
@@ -154,15 +153,24 @@ fromFiles = ->
 # Now that we have all the content we need, we can now create the gist
 # and post back the link.
 createGist = (files) ->
-  gist = new Gist
-    private:     options.private or no
-    user:        options.user
-    token:       options.token
-    description: options.desc
+  client = new Client
+    user     : options.user
+    password : options.password
+
+  gist =
+    public : !options.private
+    files  : {}
+
+  gist.description = options.desc if options.desc
 
   type = if options.type then '.' + options.type or null
 
-  gist.addFile file.name, file.content, type for file in files
+  for file in files
+    name = file.name
+    name = name + file.type if file.type
+    gist.files[name] =
+      content : file.content
 
-  gist.save (error) ->
-    console.log "https://gist.github.com/#{@id}"
+  client.post '', gist, (error, gist) ->
+    throw error if error
+    console.log gist.html_url

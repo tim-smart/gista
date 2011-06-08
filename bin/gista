@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-var Gist, Task, createGist, exec, files, fromFiles, fromStdin, fs, gist, help, id, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
-Gist = require('node-gist');
+var Client, Task, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
+Client = require('node-gist').Client;
 nopt = require('nopt');
 path = require('path');
 fs = require('fs');
 Task = require('parallel').Task;
 exec = require('child_process').exec;
-help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -a, --token     Manually set Github api token\n  -h, --help      You looking at it\n";
+help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -p, --password  Manually set Github api token\n  -h, --help      You looking at it\n";
 known_opts = {
   private: Boolean,
   fetch: String,
@@ -34,28 +34,29 @@ if (options.help) {
   return process.exit();
 }
 if (options.fetch) {
-  id = options.fetch.split('/').pop();
-  if (!id) {
-    return process.exit();
-  }
-  gist = new Gist({
-    id: id
-  });
-  gist.load(function(error, meta) {
-    var content, filename, files, output, _i, _len;
-    files = Object.keys(this.data);
-    if (files.length === 0) {
-      return process.exit();
+  client = new Client;
+  return client.get("/" + options.fetch, function(error, gist) {
+    var buf, file, files, multiple, ret, _i, _len;
+    if (error) {
+      throw error;
     }
-    output = [];
+    files = Object.keys(gist.files);
+    multiple = files.length > 1;
+    if (!multiple) {
+      return console.log(gist.files[files[0]].content);
+    }
+    ret = [];
+    buf = '';
     for (_i = 0, _len = files.length; _i < _len; _i++) {
-      filename = files[_i];
-      content = this.data[filename];
-      output.push(content);
+      file = files[_i];
+      buf += file + '\n';
+      buf += new Array(file.length + 1).join('=');
+      buf += '\n\n' + gist.files[file].content;
+      ret.push(buf);
+      buf = '';
     }
-    return process.stdout.write(output.join('\n----------\n'));
+    return console.log(ret.join('\n\n'));
   });
-  return;
 }
 files = options.argv.remain;
 is_stdin = options.argv.remain.length === 0;
@@ -64,23 +65,23 @@ loadConfig = function(callback) {
   if (!options.user) {
     options.user = process.env.GITHUB_USER;
   }
-  if (!options.token) {
-    options.token = process.env.GITHUB_TOKEN;
+  if (!options.password) {
+    options.password = process.env.GITHUB_PASSWORD;
   }
-  if (options.user && options.token) {
+  if (options.user && options.password) {
     return callback();
   }
   task = new Task;
   if (!options.user) {
     task.add('user', [exec, 'git config --global github.user']);
   }
-  if (!options.token) {
-    task.add('token', [exec, 'git config --global github.token']);
+  if (!options.password) {
+    task.add('password', [exec, 'git config --global github.password']);
   }
   has_error = null;
   return task.run(function(name, error, stdout) {
     if (name === null) {
-      if (has_error || options.user === null || options.token === null) {
+      if (has_error || options.user === null || options.password === null) {
         options.user = options.token = null;
       }
       return callback(has_error);
@@ -111,7 +112,7 @@ fromStdin = function() {
   return process.stdin.on('end', function() {
     return createGist([
       {
-        name: options.name || null,
+        name: options.name || 'stdin.txt',
         content: data
       }
     ]);
@@ -142,19 +143,33 @@ fromFiles = function() {
   });
 };
 createGist = function(files) {
-  var file, type, _i, _len;
-  gist = new Gist({
-    private: options.private || false,
+  var file, gist, name, type, _i, _len;
+  client = new Client({
     user: options.user,
-    token: options.token,
-    description: options.desc
+    password: options.password
   });
+  gist = {
+    public: !options.private,
+    files: {}
+  };
+  if (options.desc) {
+    gist.description = options.desc;
+  }
   type = options.type ? '.' + options.type || null : void 0;
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
-    gist.addFile(file.name, file.content, type);
+    name = file.name;
+    if (file.type) {
+      name = name + file.type;
+    }
+    gist.files[name] = {
+      content: file.content
+    };
   }
-  return gist.save(function(error) {
-    return console.log("https://gist.github.com/" + this.id);
+  return client.post('', gist, function(error, gist) {
+    if (error) {
+      throw error;
+    }
+    return console.log(gist.html_url);
   });
 };
