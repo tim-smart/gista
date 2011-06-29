@@ -1,9 +1,140 @@
 <!DOCTYPE html>  <html> <head>   <title>gista.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               gista.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h1>The Node Gist CLI Tool</h1>
 
-<p>A handy little tool that allows you to use Gist like a unix pro.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>HELP</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Option parsing is done with <code>nopt</code> - a handy library sculpted by
-Isaac Schlueter</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Fetch mode? Fetch mode precedes gist creation.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Are we reading from stdin, or reading from a list of files?</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>We need to exhaust all the cases where the github user and token
-could be stored.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Load the user and token then either load the stdin data
-or parse out the files.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Collect data on stdin as it comes in, buffer it, and then pass it
-on to <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Iterate over every file and grab the contents, ready to pass
-onto <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Now that we have all the content we need, we can now create the gist
-and post back the link.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+<p>A handy little tool that allows you to use Gist like a unix pro.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Client   = </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;node-gist&#39;</span><span class="p">).</span><span class="nx">Client</span>
+<span class="nv">nopt     = </span><span class="nx">require</span> <span class="s1">&#39;nopt&#39;</span>
+<span class="nv">path     = </span><span class="nx">require</span> <span class="s1">&#39;path&#39;</span>
+<span class="nv">fs       = </span><span class="nx">require</span> <span class="s1">&#39;fs&#39;</span>
+<span class="nv">async    = </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async-array&#39;</span><span class="p">).</span><span class="nx">async</span>
+<span class="p">{</span> <span class="nx">exec</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s1">&#39;child_process&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>HELP</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">help = </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Create a Gist from a file or stdin using node-gist.</span>
+
+<span class="s2">gista -pd &quot;</span><span class="nx">My</span> <span class="nx">cool</span> <span class="nx">gist</span><span class="s2">&quot; [file.ext]</span>
+
+<span class="s2">Options:</span>
+<span class="s2">  -f, --fetch     Fetch a gist by id or url</span>
+<span class="s2">  -p, --private   Mark the gist private</span>
+<span class="s2">  -n, --name      Manually set the file name</span>
+<span class="s2">  -d, --desc      Add a description</span>
+<span class="s2">  -t, --type      Manually set file extension</span>
+<span class="s2">  -u, --user      Manually set Github username</span>
+<span class="s2">  -p, --password  Manually set Github user password</span>
+<span class="s2">  -h, --help      You looking at it</span>
+
+<span class="s2">&quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Option parsing is done with <code>nopt</code> - a handy library sculpted by
+Isaac Schlueter</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">known_opts =</span>
+  <span class="nv">private: </span><span class="nb">Boolean</span>
+  <span class="nv">fetch: </span>  <span class="nb">String</span>
+  <span class="nv">meta: </span>   <span class="nb">Boolean</span>
+  <span class="nv">name: </span>   <span class="nb">String</span>
+  <span class="nv">desc: </span>   <span class="nb">String</span>
+  <span class="nv">type: </span>   <span class="nb">String</span>
+  <span class="nv">token: </span>  <span class="nb">String</span>
+  <span class="nv">user: </span>   <span class="nb">String</span>
+  <span class="nv">help: </span>   <span class="nb">Boolean</span>
+
+<span class="nv">short_opts =</span>
+  <span class="nv">f: </span><span class="s1">&#39;--fetch&#39;</span>
+  <span class="nv">p: </span><span class="p">[</span><span class="s1">&#39;--private&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">]</span>
+  <span class="nv">t: </span><span class="s1">&#39;--type&#39;</span>
+  <span class="nv">u: </span><span class="s1">&#39;--user&#39;</span>
+  <span class="nv">a: </span><span class="s1">&#39;--token&#39;</span>
+  <span class="nv">h: </span><span class="s1">&#39;--help&#39;</span>
+  <span class="nv">n: </span><span class="s1">&#39;--name&#39;</span>
+  <span class="nv">d: </span><span class="s1">&#39;--desc&#39;</span>
+
+<span class="nv">options = </span><span class="nx">nopt</span> <span class="nx">known_opts</span><span class="p">,</span> <span class="nx">short_opts</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">help</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">help</span>
+  <span class="k">return</span> <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Fetch mode? Fetch mode precedes gist creation.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">fetch</span>
+  <span class="nv">client = </span><span class="k">new</span> <span class="nx">Client</span>
+  <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;/#{options.fetch}&quot;</span><span class="p">,</span> <span class="nf">(error, gist) -&gt;</span>
+    <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+
+    <span class="nv">files    = </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">gist</span><span class="p">.</span><span class="nx">files</span><span class="p">)</span>
+    <span class="nv">multiple = </span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+    <span class="nx">unless</span> <span class="nx">multiple</span>
+      <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="nx">content</span>
+
+    <span class="nv">ret = </span><span class="p">[]</span>
+    <span class="nv">buf = </span><span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="nx">file</span> <span class="k">in</span> <span class="nx">files</span>
+      <span class="nx">buf</span> <span class="o">+=</span> <span class="nx">file</span> <span class="o">+</span> <span class="s1">&#39;\n&#39;</span>
+      <span class="nx">buf</span> <span class="o">+=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">).</span><span class="nx">join</span> <span class="s1">&#39;=&#39;</span>
+      <span class="nx">buf</span> <span class="o">+=</span> <span class="s1">&#39;\n\n&#39;</span> <span class="o">+</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="nx">file</span><span class="p">].</span><span class="nx">content</span>
+      <span class="nx">ret</span><span class="p">.</span><span class="nx">push</span> <span class="nx">buf</span>
+      <span class="nv">buf = </span><span class="s1">&#39;&#39;</span>
+
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">ret</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39;\n\n&#39;</span>
+
+<span class="nv">files = </span><span class="nx">options</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">remain</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Are we reading from stdin, or reading from a list of files?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">is_stdin = </span><span class="nx">options</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">remain</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>We need to exhaust all the cases where the github user and token
+could be stored.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">loadConfig = </span><span class="nf">(callback) -&gt;</span>
+  <span class="nv">options.user     = </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">GITHUB_USER</span>     <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span>
+  <span class="nv">options.password = </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">GITHUB_PASSWORD</span> <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span>
+
+  <span class="k">return</span> <span class="nx">callback</span><span class="p">()</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span>
+
+  <span class="nv">task = </span><span class="nx">async</span> <span class="p">[]</span>
+
+  <span class="nx">task</span><span class="p">.</span><span class="nx">push</span> <span class="s1">&#39;user&#39;</span>     <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span>
+  <span class="nx">task</span><span class="p">.</span><span class="nx">push</span> <span class="s1">&#39;password&#39;</span> <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span>
+
+  <span class="nx">task</span>
+    <span class="p">.</span><span class="nx">forEach</span> <span class="nf">(item, i, next) -&gt;</span>
+      <span class="nx">exec</span> <span class="s2">&quot;git config --global github.#{item}&quot;</span><span class="p">,</span> <span class="nf">(error, stdout) -&gt;</span>
+        <span class="k">return</span> <span class="nx">next</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+        <span class="nx">options</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span> <span class="o">=</span> <span class="nx">stdout</span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+        <span class="nx">next</span><span class="p">()</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(error, results) -&gt;</span>
+      <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span> <span class="o">is</span> <span class="kc">null</span> <span class="o">or</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span> <span class="o">is</span> <span class="kc">null</span>
+        <span class="nv">options.user = options.password = </span><span class="kc">null</span>
+      <span class="k">if</span> <span class="nx">error</span>
+        <span class="k">return</span> <span class="nx">callback</span> <span class="nx">error</span>
+      <span class="nx">callback</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Load the user and token then either load the stdin data
+or parse out the files.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">loadConfig</span> <span class="nf">(error) -&gt;</span>
+  <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+
+  <span class="k">return</span> <span class="nx">fromStdin</span><span class="p">()</span> <span class="k">if</span> <span class="nx">is_stdin</span>
+  <span class="nx">fromFiles</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Collect data on stdin as it comes in, buffer it, and then pass it
+on to <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fromStdin = </span><span class="o">-&gt;</span>
+  <span class="nv">data = </span><span class="s1">&#39;&#39;</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">resume</span><span class="p">()</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">setEncoding</span> <span class="s1">&#39;utf8&#39;</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="nf">(chunk) -&gt;</span>
+    <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="o">-&gt;</span>
+    <span class="nx">createGist</span> <span class="p">[</span><span class="nv">name: </span><span class="nx">options</span><span class="p">.</span><span class="nx">name</span> <span class="o">or</span> <span class="s1">&#39;stdin.txt&#39;</span><span class="p">,</span> <span class="nv">content: </span><span class="nx">data</span><span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Iterate over every file and grab the contents, ready to pass
+onto <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fromFiles = </span><span class="o">-&gt;</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s1">&#39;Over 10 files.&#39;</span> <span class="k">if</span> <span class="nx">files</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">10</span>
+
+  <span class="nx">async</span><span class="p">(</span><span class="nx">files</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">map</span> <span class="nf">(file, i, next) -&gt;</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span> <span class="nx">file</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(error, content) -&gt;</span>
+        <span class="k">return</span> <span class="nx">next</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+        <span class="nx">next</span> <span class="kc">null</span><span class="p">,</span> <span class="nv">name : </span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">basename</span> <span class="nx">file</span><span class="p">),</span> <span class="nv">content : </span><span class="nx">content</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(error, results) -&gt;</span>
+      <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+      <span class="nx">createGist</span> <span class="nx">results</span><span class="p">.</span><span class="nx">slice</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Now that we have all the content we need, we can now create the gist
+and post back the link.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">createGist = </span><span class="nf">(files) -&gt;</span>
+  <span class="nv">client = </span><span class="k">new</span> <span class="nx">Client</span>
+    <span class="nv">user     : </span><span class="nx">options</span><span class="p">.</span><span class="nx">user</span>
+    <span class="nv">password : </span><span class="nx">options</span><span class="p">.</span><span class="nx">password</span>
+
+  <span class="nv">gist =</span>
+    <span class="nv">public : </span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">private</span>
+    <span class="nv">files  : </span><span class="p">{}</span>
+
+  <span class="nv">gist.description = </span><span class="nx">options</span><span class="p">.</span><span class="nx">desc</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">desc</span>
+
+  <span class="nv">type = </span><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">type</span> <span class="k">then</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nx">options</span><span class="p">.</span><span class="nx">type</span> <span class="o">or</span> <span class="kc">null</span>
+
+  <span class="k">for</span> <span class="nx">file</span> <span class="k">in</span> <span class="nx">files</span>
+    <span class="nv">name = </span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span>
+    <span class="nv">name = </span><span class="nx">name</span> <span class="o">+</span> <span class="nx">type</span> <span class="k">if</span> <span class="nx">type</span>
+    <span class="nx">gist</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span>
+      <span class="nv">content : </span><span class="nx">file</span><span class="p">.</span><span class="nx">content</span>
+
+  <span class="nx">client</span><span class="p">.</span><span class="nx">post</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">gist</span><span class="p">,</span> <span class="nf">(error, gist) -&gt;</span>
+    <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">html_url</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
