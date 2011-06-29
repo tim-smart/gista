@@ -6,7 +6,7 @@ Client   = require('node-gist').Client
 nopt     = require 'nopt'
 path     = require 'path'
 fs       = require 'fs'
-Task     = require('parallel').Task
+async    = require('async-array').async
 { exec } = require 'child_process'
 
 # HELP
@@ -22,7 +22,7 @@ Options:
   -d, --desc      Add a description
   -t, --type      Manually set file extension
   -u, --user      Manually set Github username
-  -p, --password  Manually set Github api token
+  -p, --password  Manually set Github user password
   -h, --help      You looking at it
 
 """
@@ -93,22 +93,23 @@ loadConfig = (callback) ->
 
   return callback() if options.user and options.password
 
-  task = new Task
+  task = async []
 
-  task.add 'user', [exec, 'git config --global github.user']         unless options.user
-  task.add 'password', [exec, 'git config --global github.password'] unless options.password
+  task.push 'user'     unless options.user
+  task.push 'password' unless options.password
 
-  has_error = null
-
-  task.run (name, error, stdout) ->
-    if name is null
-      if has_error or options.user is null or options.password is null
-        options.user = options.token = null
-      return callback has_error
-
-    return has_error = error if error
-
-    options[name] = stdout.trim() or null
+  task
+    .forEach (item, i, next) ->
+      exec "git config --global github.#{item}", (error, stdout) ->
+        return next error if error
+        options[item] = stdout.trim()
+        next()
+    .exec (error, results) ->
+      if options.user is null or options.password is null
+        options.user = options.password = null
+      if error
+        return callback error
+      callback()
 
 # Load the user and token then either load the stdin data
 # or parse out the files.
@@ -134,21 +135,14 @@ fromStdin = ->
 fromFiles = ->
   throw new Error 'Over 10 files.' if files.length > 10
 
-  task       = new Task
-  gist_files = []
-
-  for file in files
-    task.add path.basename(file), [fs.readFile, file, 'utf8']
-
-  task.run (name, error, content) ->
-    if name is null
-      return createGist gist_files
-
-    throw error if error
-
-    gist_files.push
-      name:    name
-      content: content
+  async(files)
+    .map (file, i, next) ->
+      fs.readFile file, 'utf8', (error, content) ->
+        return next error if error
+        next null, name : (path.basename file), content : content
+    .exec (error, results) ->
+      throw error if error
+      createGist results.slice()
 
 # Now that we have all the content we need, we can now create the gist
 # and post back the link.

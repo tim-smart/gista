@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-var Client, Task, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
+var Client, async, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
 Client = require('node-gist').Client;
 nopt = require('nopt');
 path = require('path');
 fs = require('fs');
-Task = require('parallel').Task;
+async = require('async-array').async;
 exec = require('child_process').exec;
-help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -p, --password  Manually set Github api token\n  -h, --help      You looking at it\n";
+help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -p, --password  Manually set Github user password\n  -h, --help      You looking at it\n";
 known_opts = {
   private: Boolean,
   fetch: String,
@@ -61,7 +61,7 @@ if (options.fetch) {
 files = options.argv.remain;
 is_stdin = options.argv.remain.length === 0;
 loadConfig = function(callback) {
-  var has_error, task;
+  var task;
   if (!options.user) {
     options.user = process.env.GITHUB_USER;
   }
@@ -71,25 +71,29 @@ loadConfig = function(callback) {
   if (options.user && options.password) {
     return callback();
   }
-  task = new Task;
+  task = async([]);
   if (!options.user) {
-    task.add('user', [exec, 'git config --global github.user']);
+    task.push('user');
   }
   if (!options.password) {
-    task.add('password', [exec, 'git config --global github.password']);
+    task.push('password');
   }
-  has_error = null;
-  return task.run(function(name, error, stdout) {
-    if (name === null) {
-      if (has_error || options.user === null || options.password === null) {
-        options.user = options.token = null;
+  return task.forEach(function(item, i, next) {
+    return exec("git config --global github." + item, function(error, stdout) {
+      if (error) {
+        return next(error);
       }
-      return callback(has_error);
+      options[item] = stdout.trim();
+      return next();
+    });
+  }).exec(function(error, results) {
+    if (options.user === null || options.password === null) {
+      options.user = options.password = null;
     }
     if (error) {
-      return has_error = error;
+      return callback(error);
     }
-    return options[name] = stdout.trim() || null;
+    return callback();
   });
 };
 loadConfig(function(error) {
@@ -119,27 +123,24 @@ fromStdin = function() {
   });
 };
 fromFiles = function() {
-  var file, gist_files, task, _i, _len;
   if (files.length > 10) {
     throw new Error('Over 10 files.');
   }
-  task = new Task;
-  gist_files = [];
-  for (_i = 0, _len = files.length; _i < _len; _i++) {
-    file = files[_i];
-    task.add(path.basename(file), [fs.readFile, file, 'utf8']);
-  }
-  return task.run(function(name, error, content) {
-    if (name === null) {
-      return createGist(gist_files);
-    }
+  return async(files).map(function(file, i, next) {
+    return fs.readFile(file, 'utf8', function(error, content) {
+      if (error) {
+        return next(error);
+      }
+      return next(null, {
+        name: path.basename(file),
+        content: content
+      });
+    });
+  }).exec(function(error, results) {
     if (error) {
       throw error;
     }
-    return gist_files.push({
-      name: name,
-      content: content
-    });
+    return createGist(results.slice());
   });
 };
 createGist = function(files) {
