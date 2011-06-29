@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-var Client, async, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts;
+var Client, async, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts, url;
 Client = require('node-gist').Client;
 nopt = require('nopt');
 path = require('path');
+url = require('url');
 fs = require('fs');
 async = require('async-array').async;
 exec = require('child_process').exec;
@@ -35,7 +36,11 @@ if (options.help) {
 }
 if (options.fetch) {
   client = new Client;
-  return client.get("/" + options.fetch, function(error, gist) {
+  path = (url.parse(options.fetch)).pathname;
+  if (path[0] !== '/') {
+    path = '/' + path;
+  }
+  return client.get(path, function(error, gist) {
     var buf, file, files, multiple, ret, _i, _len;
     if (error) {
       throw error;

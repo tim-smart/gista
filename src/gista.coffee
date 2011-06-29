@@ -5,6 +5,7 @@
 Client   = require('node-gist').Client
 nopt     = require 'nopt'
 path     = require 'path'
+url      = require 'url'
 fs       = require 'fs'
 async    = require('async-array').async
 { exec } = require 'child_process'
@@ -60,7 +61,9 @@ if options.help
 # Fetch mode? Fetch mode precedes gist creation.
 if options.fetch
   client = new Client
-  return client.get "/#{options.fetch}", (error, gist) ->
+  path   = (url.parse options.fetch).pathname
+  path   = '/' + path unless path[0] is '/'
+  return client.get path, (error, gist) ->
     throw error if error
 
     files    = Object.keys(gist.files)
