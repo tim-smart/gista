@@ -145,7 +145,7 @@ fromFiles = function() {
     if (error) {
       throw error;
     }
-    return createGist(results.slice());
+    return createGist(results.array());
   });
 };
 createGist = function(files) {

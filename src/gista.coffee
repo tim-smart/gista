@@ -145,7 +145,7 @@ fromFiles = ->
         next null, name : (path.basename file), content : content
     .exec (error, results) ->
       throw error if error
-      createGist results.slice()
+      createGist results.array()
 
 # Now that we have all the content we need, we can now create the gist
 # and post back the link.
