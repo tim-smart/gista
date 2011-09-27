@@ -102,9 +102,6 @@ loadConfig = function(callback) {
   });
 };
 loadConfig(function(error) {
-  if (error) {
-    throw error;
-  }
   if (is_stdin) {
     return fromStdin();
   }

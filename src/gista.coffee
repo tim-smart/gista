@@ -117,8 +117,6 @@ loadConfig = (callback) ->
 # Load the user and token then either load the stdin data
 # or parse out the files.
 loadConfig (error) ->
-  throw error if error
-
   return fromStdin() if is_stdin
   fromFiles()
 

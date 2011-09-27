@@ -94,8 +94,6 @@ could be stored.</p>             </td>             <td class="code">            
         <span class="k">return</span> <span class="nx">callback</span> <span class="nx">error</span>
       <span class="nx">callback</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Load the user and token then either load the stdin data
 or parse out the files.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">loadConfig</span> <span class="nf">(error) -&gt;</span>
-  <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
-
   <span class="k">return</span> <span class="nx">fromStdin</span><span class="p">()</span> <span class="k">if</span> <span class="nx">is_stdin</span>
   <span class="nx">fromFiles</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Collect data on stdin as it comes in, buffer it, and then pass it
 on to <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fromStdin = </span><span class="o">-&gt;</span>
