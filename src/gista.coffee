@@ -24,6 +24,7 @@ Options:
   -t, --type      Manually set file extension
   -u, --user      Manually set Github username
   -p, --password  Manually set Github user password
+  -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
 
 """
@@ -39,6 +40,7 @@ known_opts =
   type:    String
   token:   String
   user:    String
+  verbose: Boolean
   help:    Boolean
 
 short_opts =
@@ -50,6 +52,7 @@ short_opts =
   h: '--help'
   n: '--name'
   d: '--desc'
+  v: '--verbose'
 
 options = nopt known_opts, short_opts
 
@@ -123,12 +126,19 @@ loadConfig (error) ->
 # Collect data on stdin as it comes in, buffer it, and then pass it
 # on to `createGist`.
 fromStdin = ->
-  data = ''
+  data  = ''
+  first = yes
   process.stdin.resume()
   process.stdin.setEncoding 'utf8'
   process.stdin.on 'data', (chunk) ->
+    if options.verbose
+      if first
+        process.stdout.write("> ")
+        first = false
+      process.stdout.write chunk.split("\n").join("\n> ")
     data += chunk
   process.stdin.on 'end', ->
+    process.stdout.write("EOF\n") if options.verbose
     createGist [name: options.name or 'stdin.txt', content: data]
 
 # Iterate over every file and grab the contents, ready to pass

@@ -19,6 +19,7 @@
 <span class="s2">  -t, --type      Manually set file extension</span>
 <span class="s2">  -u, --user      Manually set Github username</span>
 <span class="s2">  -p, --password  Manually set Github user password</span>
+<span class="s2">  -v, --verbose   When reading from stdin, echo input back to stdout</span>
 <span class="s2">  -h, --help      You looking at it</span>
 
 <span class="s2">&quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Option parsing is done with <code>nopt</code> - a handy library sculpted by
@@ -31,6 +32,7 @@ Isaac Schlueter</p>             </td>             <td class="code">             
   <span class="nv">type: </span>   <span class="nb">String</span>
   <span class="nv">token: </span>  <span class="nb">String</span>
   <span class="nv">user: </span>   <span class="nb">String</span>
+  <span class="nv">verbose: </span><span class="nb">Boolean</span>
   <span class="nv">help: </span>   <span class="nb">Boolean</span>
 
 <span class="nv">short_opts =</span>
@@ -42,6 +44,7 @@ Isaac Schlueter</p>             </td>             <td class="code">             
   <span class="nv">h: </span><span class="s1">&#39;--help&#39;</span>
   <span class="nv">n: </span><span class="s1">&#39;--name&#39;</span>
   <span class="nv">d: </span><span class="s1">&#39;--desc&#39;</span>
+  <span class="nv">v: </span><span class="s1">&#39;--verbose&#39;</span>
 
 <span class="nv">options = </span><span class="nx">nopt</span> <span class="nx">known_opts</span><span class="p">,</span> <span class="nx">short_opts</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">help</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">help</span>
@@ -97,12 +100,19 @@ or parse out the files.</p>             </td>             <td class="code">     
   <span class="k">return</span> <span class="nx">fromStdin</span><span class="p">()</span> <span class="k">if</span> <span class="nx">is_stdin</span>
   <span class="nx">fromFiles</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Collect data on stdin as it comes in, buffer it, and then pass it
 on to <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fromStdin = </span><span class="o">-&gt;</span>
-  <span class="nv">data = </span><span class="s1">&#39;&#39;</span>
+  <span class="nv">data  = </span><span class="s1">&#39;&#39;</span>
+  <span class="nv">first = </span><span class="kc">yes</span>
   <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">resume</span><span class="p">()</span>
   <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">setEncoding</span> <span class="s1">&#39;utf8&#39;</span>
   <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="nf">(chunk) -&gt;</span>
+    <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">verbose</span>
+      <span class="k">if</span> <span class="nx">first</span>
+        <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">)</span>
+        <span class="nv">first = </span><span class="kc">false</span>
+      <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span> <span class="nx">chunk</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;\n&quot;</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;\n&gt; &quot;</span><span class="p">)</span>
     <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span>
   <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="o">-&gt;</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;EOF\n&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">verbose</span>
     <span class="nx">createGist</span> <span class="p">[</span><span class="nv">name: </span><span class="nx">options</span><span class="p">.</span><span class="nx">name</span> <span class="o">or</span> <span class="s1">&#39;stdin.txt&#39;</span><span class="p">,</span> <span class="nv">content: </span><span class="nx">data</span><span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Iterate over every file and grab the contents, ready to pass
 onto <code>createGist</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fromFiles = </span><span class="o">-&gt;</span>
   <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s1">&#39;Over 10 files.&#39;</span> <span class="k">if</span> <span class="nx">files</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">10</span>

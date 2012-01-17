@@ -1,13 +1,22 @@
 #!/usr/bin/env node
 var Client, async, client, createGist, exec, files, fromFiles, fromStdin, fs, help, is_stdin, known_opts, loadConfig, nopt, options, path, short_opts, url;
+
 Client = require('node-gist').Client;
+
 nopt = require('nopt');
+
 path = require('path');
+
 url = require('url');
+
 fs = require('fs');
+
 async = require('async-array').async;
+
 exec = require('child_process').exec;
-help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -p, --password  Manually set Github user password\n  -h, --help      You looking at it\n";
+
+help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -u, --user      Manually set Github username\n  -p, --password  Manually set Github user password\n  -v, --verbose   When reading from stdin, echo input back to stdout\n  -h, --help      You looking at it\n";
+
 known_opts = {
   private: Boolean,
   fetch: String,
@@ -17,8 +26,10 @@ known_opts = {
   type: String,
   token: String,
   user: String,
+  verbose: Boolean,
   help: Boolean
 };
+
 short_opts = {
   f: '--fetch',
   p: ['--private', 'true'],
@@ -27,29 +38,27 @@ short_opts = {
   a: '--token',
   h: '--help',
   n: '--name',
-  d: '--desc'
+  d: '--desc',
+  v: '--verbose'
 };
+
 options = nopt(known_opts, short_opts);
+
 if (options.help) {
   console.log(help);
   return process.exit();
 }
+
 if (options.fetch) {
   client = new Client;
   path = (url.parse(options.fetch)).pathname;
-  if (path[0] !== '/') {
-    path = '/' + path;
-  }
+  if (path[0] !== '/') path = '/' + path;
   return client.get(path, function(error, gist) {
     var buf, file, files, multiple, ret, _i, _len;
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     files = Object.keys(gist.files);
     multiple = files.length > 1;
-    if (!multiple) {
-      return console.log(gist.files[files[0]].content);
-    }
+    if (!multiple) return console.log(gist.files[files[0]].content);
     ret = [];
     buf = '';
     for (_i = 0, _len = files.length; _i < _len; _i++) {
@@ -63,31 +72,22 @@ if (options.fetch) {
     return console.log(ret.join('\n\n'));
   });
 }
+
 files = options.argv.remain;
+
 is_stdin = options.argv.remain.length === 0;
+
 loadConfig = function(callback) {
   var task;
-  if (!options.user) {
-    options.user = process.env.GITHUB_USER;
-  }
-  if (!options.password) {
-    options.password = process.env.GITHUB_PASSWORD;
-  }
-  if (options.user && options.password) {
-    return callback();
-  }
+  if (!options.user) options.user = process.env.GITHUB_USER;
+  if (!options.password) options.password = process.env.GITHUB_PASSWORD;
+  if (options.user && options.password) return callback();
   task = async([]);
-  if (!options.user) {
-    task.push('user');
-  }
-  if (!options.password) {
-    task.push('password');
-  }
+  if (!options.user) task.push('user');
+  if (!options.password) task.push('password');
   return task.forEach(function(item, i, next) {
     return exec("git config --global github." + item, function(error, stdout) {
-      if (error) {
-        return next(error);
-      }
+      if (error) return next(error);
       options[item] = stdout.trim();
       return next();
     });
@@ -95,27 +95,34 @@ loadConfig = function(callback) {
     if (options.user === null || options.password === null) {
       options.user = options.password = null;
     }
-    if (error) {
-      return callback(error);
-    }
+    if (error) return callback(error);
     return callback();
   });
 };
+
 loadConfig(function(error) {
-  if (is_stdin) {
-    return fromStdin();
-  }
+  if (is_stdin) return fromStdin();
   return fromFiles();
 });
+
 fromStdin = function() {
-  var data;
+  var data, first;
   data = '';
+  first = true;
   process.stdin.resume();
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', function(chunk) {
+    if (options.verbose) {
+      if (first) {
+        process.stdout.write("> ");
+        first = false;
+      }
+      process.stdout.write(chunk.split("\n").join("\n> "));
+    }
     return data += chunk;
   });
   return process.stdin.on('end', function() {
+    if (options.verbose) process.stdout.write("EOF\n");
     return createGist([
       {
         name: options.name || 'stdin.txt',
@@ -124,27 +131,23 @@ fromStdin = function() {
     ]);
   });
 };
+
 fromFiles = function() {
-  if (files.length > 10) {
-    throw new Error('Over 10 files.');
-  }
+  if (files.length > 10) throw new Error('Over 10 files.');
   return async(files).map(function(file, i, next) {
     return fs.readFile(file, 'utf8', function(error, content) {
-      if (error) {
-        return next(error);
-      }
+      if (error) return next(error);
       return next(null, {
         name: path.basename(file),
         content: content
       });
     });
   }).exec(function(error, results) {
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     return createGist(results.array());
   });
 };
+
 createGist = function(files) {
   var file, gist, name, type, _i, _len;
   client = new Client({
@@ -155,24 +158,18 @@ createGist = function(files) {
     public: !options.private,
     files: {}
   };
-  if (options.desc) {
-    gist.description = options.desc;
-  }
+  if (options.desc) gist.description = options.desc;
   type = options.type ? '.' + options.type || null : void 0;
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
     name = file.name;
-    if (type) {
-      name = name + type;
-    }
+    if (type) name = name + type;
     gist.files[name] = {
       content: file.content
     };
   }
   return client.post('', gist, function(error, gist) {
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     return console.log(gist.html_url);
   });
 };
