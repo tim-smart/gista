@@ -22,8 +22,10 @@ Options:
   -n, --name      Manually set the file name
   -d, --desc      Add a description
   -t, --type      Manually set file extension
+  -a, --token     Manually set the oauth token
+      --tokengen  Generate a token from previous token/credentials
   -u, --user      Manually set Github username
-  -p, --password  Manually set Github user password
+      --password  Manually set Github user password
   -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
 
@@ -32,27 +34,28 @@ Options:
 # Option parsing is done with `nopt` - a handy library sculpted by
 # Isaac Schlueter
 known_opts =
-  private: Boolean
-  fetch:   String
-  meta:    Boolean
-  name:    String
-  desc:    String
-  type:    String
-  token:   String
-  user:    String
-  verbose: Boolean
-  help:    Boolean
+  private:  Boolean
+  fetch:    String
+  name:     String
+  desc:     String
+  type:     String
+  token:    String
+  tokengen: Boolean
+  password: String
+  user:     String
+  verbose:  Boolean
+  help:     Boolean
 
 short_opts =
   f: '--fetch'
   p: ['--private', 'true']
-  t: '--type'
-  u: '--user'
-  a: '--token'
-  h: '--help'
   n: '--name'
   d: '--desc'
+  t: '--type'
+  a: '--token'
+  u: '--user'
   v: '--verbose'
+  h: '--help'
 
 options = nopt known_opts, short_opts
 
@@ -88,6 +91,9 @@ if options.fetch
 
 files = options.argv.remain
 
+# Are we generating a oauth token?
+is_gentoken = options.tokengen is yes
+
 # Are we reading from stdin, or reading from a list of files?
 is_stdin = options.argv.remain.length is 0
 
@@ -96,8 +102,12 @@ is_stdin = options.argv.remain.length is 0
 loadConfig = (callback) ->
   options.user     = process.env.GITHUB_USER     unless options.user
   options.password = process.env.GITHUB_PASSWORD unless options.password
+  options.token    = process.env.GISTA_TOKEN     unless options.token
 
-  return callback() if options.user and options.password
+  if options.token
+    options.user      = null
+    options.password  = null
+    return callback()
 
   task = async []
 
@@ -107,21 +117,47 @@ loadConfig = (callback) ->
   task
     .forEach (item, i, next) ->
       exec "git config --global github.#{item}", (error, stdout) ->
-        return next error if error
+        return next() if error
         options[item] = stdout.trim()
         next()
     .exec (error, results) ->
-      if options.user is null or options.password is null
+      has_userpass  = (options.user and options.password) isnt null
+
+      unless has_userpass
         options.user = options.password = null
+
       if error
         return callback error
+
       callback()
 
-# Load the user and token then either load the stdin data
-# or parse out the files.
-loadConfig (error) ->
-  return fromStdin() if is_stdin
-  fromFiles()
+# Generate a oauth token with the already provided authorization
+generateToken = ->
+  client = new Client
+    user      : options.user
+    password  : options.password
+    token     : options.token
+
+  # Change the client path so we can use the more generic Github API
+  client.path = ''
+
+  # The description for the token we need.
+  authorization =
+    scopes    : [ 'gist' ]
+    note      : 'gista CLI'
+    note_url  : 'https://github.com/tim-smart/gista'
+
+  # Create the token
+  client.post '/authorizations', authorization, (error, data) ->
+    throw error if error
+
+    unless data.token
+      throw new Error 'Token generation refused by Github.'
+
+    console.log data.token
+    console.error """\nFor continued use of this token by the gista cli tool, make
+                     you assign it to the GISTA_TOKEN environment variable in your
+                     bash profile."""
 
 # Collect data on stdin as it comes in, buffer it, and then pass it
 # on to `createGist`.
@@ -159,8 +195,9 @@ fromFiles = ->
 # and post back the link.
 createGist = (files) ->
   client = new Client
-    user     : options.user
-    password : options.password
+    user      : options.user
+    password  : options.password
+    token     : options.token
 
   gist =
     public : !options.private
@@ -179,3 +216,12 @@ createGist = (files) ->
   client.post '', gist, (error, gist) ->
     throw error if error
     console.log gist.html_url
+
+# Load the user and token then either load the stdin data
+# or parse out the files.
+loadConfig (error) ->
+  throw error if error
+
+  return generateToken() if is_gentoken
+  return fromStdin()     if is_stdin
+  fromFiles()

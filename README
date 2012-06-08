@@ -14,9 +14,11 @@ $ npm install -g gista
 Usage
 =====
 
-# Set your password etc.
-git config --global github.user Tim-Smart
-git config --global github.password xxx
+# Get a token
+gista --user tim-smart --password xxx --gentoken
+
+# Set token to environment variable
+export GISTA_TOKEN=xxx
 
 # Create a Public gist
 $ echo "test" | gista
