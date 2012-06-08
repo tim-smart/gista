@@ -18,7 +18,7 @@ async = require('async-array').async;
 
 exec = require('child_process').exec;
 
-help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -a, --token     Manually set the oauth token\n      --gentoken  Generate a token from previous token/credentials\n  -u, --user      Manually set Github username\n      --password  Manually set Github user password\n  -v, --verbose   When reading from stdin, echo input back to stdout\n  -h, --help      You looking at it\n";
+help = "Create a Gist from a file or stdin using node-gist.\n\ngista -pd \"My cool gist\" [file.ext]\n\nOptions:\n  -f, --fetch     Fetch a gist by id or url\n  -p, --private   Mark the gist private\n  -n, --name      Manually set the file name\n  -d, --desc      Add a description\n  -t, --type      Manually set file extension\n  -a, --token     Manually set the oauth token\n      --gentoken  Generate a token from previous token/credentials\n  -u, --user      Manually set Github username\n      --password  Manually set Github user password\n      --tty       Force tty mode for output formatting\n  -v, --verbose   When reading from stdin, echo input back to stdout\n  -h, --help      You looking at it\n";
 
 known_opts = {
   "private": Boolean,
@@ -30,6 +30,7 @@ known_opts = {
   gentoken: Boolean,
   password: String,
   user: String,
+  tty: Boolean,
   verbose: Boolean,
   help: Boolean
 };
@@ -47,6 +48,10 @@ short_opts = {
 };
 
 options = nopt(known_opts, short_opts);
+
+if (options.tty == null) {
+  options.tty = tty.isatty(process.stdout);
+}
 
 if (options.help) {
   console.log(help);
@@ -238,7 +243,7 @@ createGist = function(files) {
     if (error) {
       throw error;
     }
-    if (tty.isatty(process.stdout)) {
+    if (options.tty) {
       return console.log(gist.html_url);
     }
     return process.stdout.write(gist.html_url);

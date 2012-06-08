@@ -27,6 +27,7 @@ Options:
       --gentoken  Generate a token from previous token/credentials
   -u, --user      Manually set Github username
       --password  Manually set Github user password
+      --tty       Force tty mode for output formatting
   -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
 
@@ -44,6 +45,7 @@ known_opts =
   gentoken: Boolean
   password: String
   user:     String
+  tty:      Boolean
   verbose:  Boolean
   help:     Boolean
 
@@ -59,6 +61,8 @@ short_opts =
   h: '--help'
 
 options = nopt known_opts, short_opts
+unless options.tty?
+  options.tty = tty.isatty(process.stdout)
 
 # Show the help?
 if options.help
@@ -216,7 +220,8 @@ createGist = (files) ->
 
   client.post '', gist, (error, gist) ->
     throw error if error
-    return console.log gist.html_url if tty.isatty process.stdout
+
+    return console.log gist.html_url if options.tty
     process.stdout.write gist.html_url
 
 # Load the user and token then either load the stdin data

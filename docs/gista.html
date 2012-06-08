@@ -22,6 +22,7 @@
 <span class="s">      --gentoken  Generate a token from previous token/credentials</span>
 <span class="s">  -u, --user      Manually set Github username</span>
 <span class="s">      --password  Manually set Github user password</span>
+<span class="s">      --tty       Force tty mode for output formatting</span>
 <span class="s">  -v, --verbose   When reading from stdin, echo input back to stdout</span>
 <span class="s">  -h, --help      You looking at it</span>
 
@@ -36,6 +37,7 @@ Isaac Schlueter</p>             </td>             <td class="code">             
   <span class="nv">gentoken: </span><span class="nb">Boolean</span>
   <span class="nv">password: </span><span class="nb">String</span>
   <span class="nv">user: </span>    <span class="nb">String</span>
+  <span class="nv">tty: </span>     <span class="nb">Boolean</span>
   <span class="nv">verbose: </span> <span class="nb">Boolean</span>
   <span class="nv">help: </span>    <span class="nb">Boolean</span>
 
@@ -50,7 +52,9 @@ Isaac Schlueter</p>             </td>             <td class="code">             
   <span class="nv">v: </span><span class="s">&#39;--verbose&#39;</span>
   <span class="nv">h: </span><span class="s">&#39;--help&#39;</span>
 
-<span class="nv">options = </span><span class="nx">nopt</span> <span class="nx">known_opts</span><span class="p">,</span> <span class="nx">short_opts</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">help</span>
+<span class="nv">options = </span><span class="nx">nopt</span> <span class="nx">known_opts</span><span class="p">,</span> <span class="nx">short_opts</span>
+<span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">tty</span><span class="o">?</span>
+  <span class="nv">options.tty = </span><span class="nx">tty</span><span class="p">.</span><span class="nx">isatty</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Show the help?</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">help</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">help</span>
   <span class="k">return</span> <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Fetch mode? Fetch mode precedes gist creation.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">fetch</span>
   <span class="nv">client = </span><span class="k">new</span> <span class="nx">Client</span>
@@ -172,7 +176,8 @@ and post back the link.</p>             </td>             <td class="code">     
 
   <span class="nx">client</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="nx">gist</span><span class="p">,</span> <span class="nf">(error, gist) -&gt;</span>
     <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
-    <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">html_url</span> <span class="k">if</span> <span class="nx">tty</span><span class="p">.</span><span class="nx">isatty</span> <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span>
+
+    <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">html_url</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">tty</span>
     <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span> <span class="nx">gist</span><span class="p">.</span><span class="nx">html_url</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>Load the user and token then either load the stdin data
 or parse out the files.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">loadConfig</span> <span class="nf">(error) -&gt;</span>
   <span class="k">throw</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
