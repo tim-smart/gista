@@ -1,7 +1,7 @@
 {
   "name": "gista",
   "description": "Simple cli utility for using gist.github.com like a unix pro.",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "author": "Tim Smart",
   "repository": {
     "type": "git",

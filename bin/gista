@@ -10,7 +10,7 @@ path = require('path');
 
 url = require('url');
 
-tty = require('tty');
+tty = require('tty').isatty(process.stdout.fd);
 
 fs = require('fs');
 
@@ -49,9 +49,7 @@ short_opts = {
 
 options = nopt(known_opts, short_opts);
 
-if (options.tty == null) {
-  options.tty = tty.isatty(process.stdout);
-}
+options.tty || (options.tty = tty);
 
 if (options.help) {
   console.log(help);
@@ -243,10 +241,10 @@ createGist = function(files) {
     if (error) {
       throw error;
     }
-    if (options.tty) {
-      return console.log(gist.html_url);
+    if (!options.tty) {
+      return process.stdout.write(gist.html_url);
     }
-    return process.stdout.write(gist.html_url);
+    return console.log(gist.html_url);
   });
 };
 

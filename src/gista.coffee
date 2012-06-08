@@ -6,7 +6,7 @@ Client   = require('node-gist').Client
 nopt     = require 'nopt'
 path     = require 'path'
 url      = require 'url'
-tty      = require 'tty'
+tty      = require('tty').isatty(process.stdout.fd)
 fs       = require 'fs'
 async    = require('async-array').async
 { exec } = require 'child_process'
@@ -61,8 +61,8 @@ short_opts =
   h: '--help'
 
 options = nopt known_opts, short_opts
-unless options.tty?
-  options.tty = tty.isatty(process.stdout)
+
+options.tty ||= tty
 
 # Show the help?
 if options.help
@@ -221,8 +221,8 @@ createGist = (files) ->
   client.post '', gist, (error, gist) ->
     throw error if error
 
-    return console.log gist.html_url if options.tty
-    process.stdout.write gist.html_url
+    return process.stdout.write gist.html_url unless options.tty
+    console.log gist.html_url
 
 # Load the user and token then either load the stdin data
 # or parse out the files.
