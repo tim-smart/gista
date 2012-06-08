@@ -23,7 +23,7 @@ Options:
   -d, --desc      Add a description
   -t, --type      Manually set file extension
   -a, --token     Manually set the oauth token
-      --tokengen  Generate a token from previous token/credentials
+      --gentoken  Generate a token from previous token/credentials
   -u, --user      Manually set Github username
       --password  Manually set Github user password
   -v, --verbose   When reading from stdin, echo input back to stdout
@@ -40,7 +40,7 @@ known_opts =
   desc:     String
   type:     String
   token:    String
-  tokengen: Boolean
+  gentoken: Boolean
   password: String
   user:     String
   verbose:  Boolean
@@ -92,7 +92,7 @@ if options.fetch
 files = options.argv.remain
 
 # Are we generating a oauth token?
-is_gentoken = options.tokengen is yes
+is_gentoken = options.gentoken is yes
 
 # Are we reading from stdin, or reading from a list of files?
 is_stdin = options.argv.remain.length is 0
