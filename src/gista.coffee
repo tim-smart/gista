@@ -6,6 +6,7 @@ Client   = require('node-gist').Client
 nopt     = require 'nopt'
 path     = require 'path'
 url      = require 'url'
+tty      = require 'tty'
 fs       = require 'fs'
 async    = require('async-array').async
 { exec } = require 'child_process'
@@ -215,7 +216,8 @@ createGist = (files) ->
 
   client.post '', gist, (error, gist) ->
     throw error if error
-    console.log gist.html_url
+    return console.log gist.html_url if tty.isatty process.stdout
+    process.stdout.write gist.html_url
 
 # Load the user and token then either load the stdin data
 # or parse out the files.
