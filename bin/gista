@@ -49,7 +49,9 @@ short_opts = {
 
 options = nopt(known_opts, short_opts);
 
-options.tty || (options.tty = tty);
+if (options.tty == null) {
+  options.tty = tty;
+}
 
 if (options.help) {
   console.log(help);

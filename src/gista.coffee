@@ -62,7 +62,7 @@ short_opts =
 
 options = nopt known_opts, short_opts
 
-options.tty ||= tty
+options.tty = tty unless options.tty?
 
 # Show the help?
 if options.help
