@@ -11,6 +11,8 @@ fs       = require 'fs'
 async    = require('async-array').async
 { exec } = require 'child_process'
 
+client   = null
+
 # HELP
 help = """
 Create a Gist from a file or stdin using node-gist.
@@ -38,6 +40,9 @@ Options:
 known_opts =
   private:  Boolean
   fetch:    String
+  edit:     String
+  star:     String
+  delete:   String
   name:     String
   desc:     String
   type:     String
@@ -51,6 +56,9 @@ known_opts =
 
 short_opts =
   f: '--fetch'
+  e: '--edit'
+  '*': '--star'
+  x: '--delete'
   p: ['--private', 'true']
   n: '--name'
   d: '--desc'
@@ -138,11 +146,6 @@ loadConfig = (callback) ->
 
 # Generate a oauth token with the already provided authorization
 generateToken = ->
-  client = new Client
-    user      : options.user
-    password  : options.password
-    token     : options.token
-
   # Change the client path so we can use the more generic Github API
   client.path = ''
 
@@ -163,6 +166,16 @@ generateToken = ->
     console.error """\nFor continued use of this token by the gista cli tool, make
                      you assign it to the GISTA_TOKEN environment variable in your
                      bash profile."""
+
+# Star a gist from a given id
+starGist = ->
+  client.put "/#{options.star}/star", (error) ->
+    throw error if error
+
+# Delete a gist from a given id
+deleteGist = ->
+  client.delete "/#{options.delete}", (error) ->
+    throw error if error
 
 # Collect data on stdin as it comes in, buffer it, and then pass it
 # on to `createGist`.
@@ -199,11 +212,6 @@ fromFiles = ->
 # Now that we have all the content we need, we can now create the gist
 # and post back the link.
 createGist = (files) ->
-  client = new Client
-    user      : options.user
-    password  : options.password
-    token     : options.token
-
   gist =
     public : !options.private
     files  : {}
@@ -218,17 +226,30 @@ createGist = (files) ->
     gist.files[name] =
       content : file.content
 
-  client.post '', gist, (error, gist) ->
+  doneGist = (error, gist) ->
     throw error if error
 
     return process.stdout.write gist.html_url unless options.tty
     console.log gist.html_url
+
+  # Are we an edit operation?
+  if options.edit
+    return client.patch "/#{options.edit}", gist, doneGist
+
+  client.post '', gist, doneGist
 
 # Load the user and token then either load the stdin data
 # or parse out the files.
 loadConfig (error) ->
   throw error if error
 
+  client = new Client
+    user      : options.user
+    password  : options.password
+    token     : options.token
+
+  return starGist()      if options.star
+  return deleteGist()    if options.delete
   return generateToken() if is_gentoken
   return fromStdin()     if is_stdin
   fromFiles()
