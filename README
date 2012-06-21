@@ -15,7 +15,7 @@ Usage
 =====
 
 # Get a token
-gista --user tim-smart --password xxx --gentoken
+gista --user tim-smart --gentoken
 
 # Set token to environment variable
 export GISTA_TOKEN=xxx
