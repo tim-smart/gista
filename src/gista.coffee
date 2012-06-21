@@ -34,7 +34,8 @@ Options:
       --gentoken  Generate a token from previous token/credentials
   -u, --user      Manually set Github username
       --password  Manually set Github user password. If user is set
-                  manually and not the token, it will prompt instead.
+                  manually and not the token, it will prompt if this
+                  option is omitted.
       --tty       Force tty mode for output formatting
   -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
