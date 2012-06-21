@@ -81,7 +81,11 @@ if (options.fetch) {
     if (error) {
       throw error;
     }
-    files = Object.keys(gist.files);
+    try {
+      files = Object.keys(gist.files);
+    } catch (error) {
+      throw new Error('Gist not found');
+    }
     multiple = files.length > 1;
     if (!multiple) {
       return process.stdout.write(gist.files[files[0]].content);

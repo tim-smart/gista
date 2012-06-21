@@ -92,7 +92,11 @@ if options.fetch
   return client.get "/#{ensureGistId(options.fetch)}", (error, gist) ->
     throw error if error
 
-    files    = Object.keys(gist.files)
+    try
+      files = Object.keys(gist.files)
+    catch error
+      throw new Error('Gist not found')
+
     multiple = files.length > 1
 
     unless multiple
