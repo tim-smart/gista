@@ -21,16 +21,16 @@ gista --user tim-smart --password xxx --gentoken
 export GISTA_TOKEN=xxx
 
 # Create a Public gist
-$ echo "test" | gista
-
-# Create a private gist
 $ echo "test" | gista -p
 
-# Gist some files privately, with a description and custom type.
+# Create a private gist
+$ echo "test" | gista
+
+# Gist some files publicly, with a description and custom type.
 $ gista -t js -pd "Cool gist" *.js
 
 # Fetch a gist
 $ gista -f 12345
 
 # Copy gist url to clipboard
-$ gista -pn test.js < package.js | xclip -selection clipboard
+$ gista -n test.js < package.js | xclip -selection clipboard
