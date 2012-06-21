@@ -9,9 +9,11 @@ url      = require 'url'
 tty      = require('tty').isatty(process.stdout.fd)
 fs       = require 'fs'
 async    = require('async-array').async
+read     = require 'read'
 { exec } = require 'child_process'
 
 client   = null
+
 
 # HELP
 help = """
@@ -24,14 +26,15 @@ Options:
   -e, --edit      Edit a gist by id or url
   -*, --star      Star a gist by id or url
   -x, --delete    Delete a gist by id or url
-  -p, --private   Mark the gist private
+  -p, --public    Mark the gist public
   -n, --name      Manually set the file name
   -d, --desc      Add a description
   -t, --type      Manually set file extension
   -a, --token     Manually set the oauth token
       --gentoken  Generate a token from previous token/credentials
   -u, --user      Manually set Github username
-      --password  Manually set Github user password
+      --password  Manually set Github user password. If user is set
+                  manually and not the token, it will prompt instead.
       --tty       Force tty mode for output formatting
   -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
@@ -41,7 +44,7 @@ Options:
 # Option parsing is done with `nopt` - a handy library sculpted by
 # Isaac Schlueter
 known_opts =
-  private:  Boolean
+  public:   Boolean
   fetch:    String
   edit:     String
   star:     String
@@ -62,7 +65,7 @@ short_opts =
   e: '--edit'
   '*': '--star'
   x: '--delete'
-  p: ['--private', 'true']
+  p: ['--public', 'true']
   n: '--name'
   d: '--desc'
   t: '--type'
@@ -74,6 +77,11 @@ short_opts =
 options = nopt known_opts, short_opts
 
 options.tty = tty unless options.tty?
+
+# read options
+read_opts =
+  prompt: 'Password: '
+  silent: yes
 
 # Show the help?
 if options.help
@@ -124,36 +132,51 @@ is_stdin = options.argv.remain.length is 0
 # We need to exhaust all the cases where the github user and token
 # could be stored.
 loadConfig = (callback) ->
+  ask_password     = !!options.user and !options.token
+
   options.user     = process.env.GITHUB_USER     unless options.user
   options.password = process.env.GITHUB_PASSWORD unless options.password
   options.token    = process.env.GISTA_TOKEN     unless options.token
 
-  if options.token
-    options.user      = null
-    options.password  = null
-    return callback()
+  gotPassword = (error, password) ->
+    throw error if error
 
-  task = async []
+    options.password  = password
 
-  task.push 'user'     unless options.user
-  task.push 'password' unless options.password
+    if options.token
+      options.user      = null
+      options.password  = null
+      return callback()
 
-  task
-    .forEach (item, i, next) ->
-      exec "git config --global github.#{item}", (error, stdout) ->
-        return next() if error
-        options[item] = stdout.trim()
-        next()
-    .exec (error, results) ->
-      has_userpass  = (options.user and options.password) isnt null
+    task = async []
 
-      unless has_userpass
-        options.user = options.password = null
+    task.push 'user'     unless options.user
+    task.push 'password' unless options.password
 
-      if error
-        return callback error
+    task
+      .forEach (item, i, next) ->
+        exec "git config --global github.#{item}", (error, stdout) ->
+          return next() if error
+          options[item] = stdout.trim()
+          next()
+      .exec (error, results) ->
+        has_userpass  = (options.user and options.password) isnt null
 
-      callback()
+        unless has_userpass
+          options.user = options.password = null
+
+        if error
+          return callback error
+
+        callback()
+
+  # Ask for password?
+  if ask_password
+    options.token    = null
+    options.password = null
+    return read(read_opts, gotPassword)
+
+  gotPassword(null, options.password)
 
 # Generate a oauth token with the already provided authorization
 generateToken = ->
@@ -223,8 +246,13 @@ fromFiles = ->
 # Now that we have all the content we need, we can now create the gist
 # and post back the link.
 createGist = (files) ->
+  is_public = options.public
+
+  unless is_public?
+    is_public = no
+
   gist =
-    public : !options.private
+    public : is_public
     files  : {}
 
   gist.description = options.desc if options.desc
@@ -239,6 +267,7 @@ createGist = (files) ->
 
   doneGist = (error, gist) ->
     throw error if error
+    throw new Error(gist.message) if gist.message
 
     return process.stdout.write gist.html_url unless options.tty
     console.log gist.html_url

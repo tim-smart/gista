@@ -1,7 +1,7 @@
 {
   "name": "gista",
   "description": "Simple cli utility for using gist.github.com like a unix pro.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Tim Smart",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
   "dependencies": {
     "node-gist": ">=0.2.3",
     "nopt": ">=1.0.10",
-    "async-array": ">=0.1.7"
+    "async-array": ">=0.1.7",
+    "read": "0.1.x"
   },
   "bin": {
     "gista": "./bin/gista"
