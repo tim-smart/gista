@@ -21,6 +21,9 @@ gista -pd "My cool gist" [file.ext]
 
 Options:
   -f, --fetch     Fetch a gist by id or url
+  -e, --edit      Edit a gist by id or url
+  -*, --star      Star a gist by id or url
+  -x, --delete    Delete a gist by id or url
   -p, --private   Mark the gist private
   -n, --name      Manually set the file name
   -d, --desc      Add a description
@@ -77,19 +80,23 @@ if options.help
   console.log help
   return process.exit()
 
+# Ensure the string is an gist id
+ensureGistId = (id) ->
+  id  = (url.parse id).pathname
+  id  = id.slice(1) if '/' is id[0]
+  return id
+
 # Fetch mode? Fetch mode precedes gist creation.
 if options.fetch
   client = new Client
-  path   = (url.parse options.fetch).pathname
-  path   = '/' + path unless path[0] is '/'
-  return client.get path, (error, gist) ->
+  return client.get "/#{ensureGistId(options.fetch)}", (error, gist) ->
     throw error if error
 
     files    = Object.keys(gist.files)
     multiple = files.length > 1
 
     unless multiple
-      return console.log gist.files[files[0]].content
+      return process.stdout.write gist.files[files[0]].content
 
     ret = []
     buf = ''
@@ -100,7 +107,7 @@ if options.fetch
       ret.push buf
       buf = ''
 
-    console.log ret.join '\n\n'
+    console.log ret.join
 
 files = options.argv.remain
 
@@ -169,12 +176,12 @@ generateToken = ->
 
 # Star a gist from a given id
 starGist = ->
-  client.put "/#{options.star}/star", (error) ->
+  client.put "/#{ensureGistId(options.star)}/star", (error) ->
     throw error if error
 
 # Delete a gist from a given id
 deleteGist = ->
-  client.delete "/#{options.delete}", (error) ->
+  client.delete "/#{ensureGistId(options.delete)}", (error) ->
     throw error if error
 
 # Collect data on stdin as it comes in, buffer it, and then pass it
@@ -234,7 +241,7 @@ createGist = (files) ->
 
   # Are we an edit operation?
   if options.edit
-    return client.patch "/#{options.edit}", gist, doneGist
+    return client.patch "/#{ensureGistId(options.edit)}", gist, doneGist
 
   client.post '', gist, doneGist
 
