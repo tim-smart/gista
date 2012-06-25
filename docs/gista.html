@@ -20,19 +20,26 @@
 <span class="s">  -e, --edit      Edit a gist by id or url</span>
 <span class="s">  -*, --star      Star a gist by id or url</span>
 <span class="s">  -x, --delete    Delete a gist by id or url</span>
-<span class="s">  -p, --public    Mark the gist public</span>
-<span class="s">  -n, --name      Manually set the file name</span>
+<span class="s">  -p, --public    Create a public gist</span>
+<span class="s">  -n, --name      Set the file name</span>
 <span class="s">  -d, --desc      Add a description</span>
-<span class="s">  -t, --type      Manually set file extension</span>
+<span class="s">  -t, --type      Set the file extension</span>
 <span class="s">  -a, --token     Manually set the oauth token</span>
-<span class="s">      --gentoken  Generate a token from previous token/credentials</span>
-<span class="s">  -u, --user      Manually set Github username</span>
-<span class="s">      --password  Manually set Github user password. If user is set</span>
-<span class="s">                  manually and not the token, it will prompt if this</span>
-<span class="s">                  option is omitted.</span>
+<span class="s">  -u, --user      Manually set Github username. If --password is</span>
+<span class="s">                  not provided, a password prompt will appear</span>
+<span class="s">      --password  Manually set Github password</span>
+<span class="s">      --gentoken  Generate a token from provided token/credentials</span>
 <span class="s">      --tty       Force tty mode for output formatting</span>
 <span class="s">  -v, --verbose   When reading from stdin, echo input back to stdout</span>
 <span class="s">  -h, --help      You looking at it</span>
+
+<span class="s">Getting Started:</span>
+<span class="s">  1. Get a token (gista doesn&#39;t store your password anywhere)</span>
+<span class="s">    gista --user github-user --gentoken</span>
+<span class="s">  2. Export token somewhere to $GISTA_TOKEN</span>
+<span class="s">    echo &quot;export GISTA_TOKEN=xxx&quot; &gt;&gt; ~/.bashrc</span>
+<span class="s">  3. Restart your shell and start gist&#39;n.</span>
+<span class="s">    echo &quot;Hello world.&quot; | gista -n hello-world.txt</span>
 
 <span class="s">&quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Option parsing is done with <code>nopt</code> - a handy library sculpted by
 Isaac Schlueter</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">known_opts =</span>

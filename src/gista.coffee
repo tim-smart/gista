@@ -26,19 +26,26 @@ Options:
   -e, --edit      Edit a gist by id or url
   -*, --star      Star a gist by id or url
   -x, --delete    Delete a gist by id or url
-  -p, --public    Mark the gist public
-  -n, --name      Manually set the file name
+  -p, --public    Create a public gist
+  -n, --name      Set the file name
   -d, --desc      Add a description
-  -t, --type      Manually set file extension
+  -t, --type      Set the file extension
   -a, --token     Manually set the oauth token
-      --gentoken  Generate a token from previous token/credentials
-  -u, --user      Manually set Github username
-      --password  Manually set Github user password. If user is set
-                  manually and not the token, it will prompt if this
-                  option is omitted.
+  -u, --user      Manually set Github username. If --password is
+                  not provided, a password prompt will appear
+      --password  Manually set Github password
+      --gentoken  Generate a token from provided token/credentials
       --tty       Force tty mode for output formatting
   -v, --verbose   When reading from stdin, echo input back to stdout
   -h, --help      You looking at it
+
+Getting Started:
+  1. Get a token (gista doesn't store your password anywhere)
+    gista --user github-user --gentoken
+  2. Export token somewhere to $GISTA_TOKEN
+    echo "export GISTA_TOKEN=xxx" >> ~/.bashrc
+  3. Restart your shell and start gist'n.
+    echo "Hello world." | gista -n hello-world.txt
 
 """
 
