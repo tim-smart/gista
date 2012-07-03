@@ -119,15 +119,18 @@ if options.fetch
       return process.stdout.write gist.files[files[0]].content
 
     ret = []
-    buf = ''
     for file in files
-      buf += file + '\n'
-      buf += new Array(file.length + 1).join '='
-      buf += '\n\n' + gist.files[file].content
-      ret.push buf
-      buf = ''
+      ret.push(
+        [ file
+        , '\n'
+        , new Array(file.length + 1).join('=')
+        , '\n\n'
+        , gist.files[file].content
+        ]
+        .join('')
+      )
 
-    console.log ret.join
+    console.log ret.join('\r\n')
 
 files = options.argv.remain
 
@@ -235,7 +238,7 @@ fromStdin = ->
     data += chunk
   process.stdin.on 'end', ->
     process.stdout.write("EOF\n") if options.verbose
-    createGist [name: options.name or 'stdin.txt', content: data]
+    createGist [name: options.name or 'stdout.txt', content: data]
 
 # Iterate over every file and grab the contents, ready to pass
 # onto `createGist`.
