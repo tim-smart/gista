@@ -99,7 +99,7 @@ if options.help
 # Ensure the string is an gist id
 ensureGistId = (id) ->
   id  = (url.parse id).pathname
-  id  = id.slice(1) if '/' is id[0]
+  id  = id.split('/').pop()
   return id
 
 # Fetch mode? Fetch mode precedes gist creation.
@@ -249,7 +249,8 @@ fromFiles = ->
     .map (file, i, next) ->
       fs.readFile file, 'utf8', (error, content) ->
         return next error if error
-        next null, name : (path.basename file), content : content
+        name = options.name || path.basename file
+        next null, name : name, content : content
     .exec (error, results) ->
       throw error if error
       createGist results.array()
