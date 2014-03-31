@@ -18,10 +18,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>The Node Gist CLI Tool</h1>
+              <h1 id="the-node-gist-cli-tool">The Node Gist CLI Tool</h1>
 
             </div>
             
@@ -38,17 +38,17 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Client   = require(<span class="string">'node-gist'</span>).Client
-nopt     = require <span class="string">'nopt'</span>
-path     = require <span class="string">'path'</span>
-url      = require <span class="string">'url'</span>
-tty      = require(<span class="string">'tty'</span>).isatty(process.stdout.fd)
-fs       = require <span class="string">'fs'</span>
-async    = require(<span class="string">'async-array'</span>).async
-read     = require <span class="string">'read'</span>
-{ exec } = require <span class="string">'child_process'</span>
+            <div class="content"><div class='highlight'><pre>Client   = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-gist'</span>).Client
+nopt     = <span class="hljs-built_in">require</span> <span class="hljs-string">'nopt'</span>
+path     = <span class="hljs-built_in">require</span> <span class="hljs-string">'path'</span>
+url      = <span class="hljs-built_in">require</span> <span class="hljs-string">'url'</span>
+tty      = <span class="hljs-built_in">require</span>(<span class="hljs-string">'tty'</span>).isatty(process.stdout.fd)
+fs       = <span class="hljs-built_in">require</span> <span class="hljs-string">'fs'</span>
+async    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async-array'</span>).async
+read     = <span class="hljs-built_in">require</span> <span class="hljs-string">'read'</span>
+{ exec } = <span class="hljs-built_in">require</span> <span class="hljs-string">'child_process'</span>
 
-client   = <span class="literal">null</span></pre></div></div>
+client   = <span class="hljs-literal">null</span></pre></div></div>
             
         </li>
         
@@ -63,7 +63,7 @@ client   = <span class="literal">null</span></pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>help = <span class="string">"""
+            <div class="content"><div class='highlight'><pre>help = <span class="hljs-string">"""
 Create a Gist from a file or stdin using node-gist.
 
 gista -pd "My cool gist" [file.ext]
@@ -111,39 +111,39 @@ Isaac Schlueter</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>known_opts =
-  public:   Boolean
-  fetch:    String
-  edit:     String
-  star:     String
-  <span class="keyword">delete</span>:   String
-  name:     String
-  desc:     String
-  type:     String
-  token:    String
-  gentoken: Boolean
-  password: String
-  user:     String
-  tty:      Boolean
-  verbose:  Boolean
-  help:     Boolean
+  <span class="hljs-attribute">public</span>:   Boolean
+  <span class="hljs-attribute">fetch</span>:    String
+  <span class="hljs-attribute">edit</span>:     String
+  <span class="hljs-attribute">star</span>:     String
+  <span class="hljs-attribute">delete</span>:   String
+  <span class="hljs-attribute">name</span>:     String
+  <span class="hljs-attribute">desc</span>:     String
+  <span class="hljs-attribute">type</span>:     String
+  <span class="hljs-attribute">token</span>:    String
+  <span class="hljs-attribute">gentoken</span>: Boolean
+  <span class="hljs-attribute">password</span>: String
+  <span class="hljs-attribute">user</span>:     String
+  <span class="hljs-attribute">tty</span>:      Boolean
+  <span class="hljs-attribute">verbose</span>:  Boolean
+  <span class="hljs-attribute">help</span>:     Boolean
 
 short_opts =
-  f: <span class="string">'--fetch'</span>
-  e: <span class="string">'--edit'</span>
-  <span class="string">'*'</span>: <span class="string">'--star'</span>
-  x: <span class="string">'--delete'</span>
-  p: [<span class="string">'--public'</span>, <span class="string">'true'</span>]
-  n: <span class="string">'--name'</span>
-  d: <span class="string">'--desc'</span>
-  t: <span class="string">'--type'</span>
-  a: <span class="string">'--token'</span>
-  u: <span class="string">'--user'</span>
-  v: <span class="string">'--verbose'</span>
-  h: <span class="string">'--help'</span>
+  <span class="hljs-attribute">f</span>: <span class="hljs-string">'--fetch'</span>
+  <span class="hljs-attribute">e</span>: <span class="hljs-string">'--edit'</span>
+  <span class="hljs-string">'*'</span>: <span class="hljs-string">'--star'</span>
+  <span class="hljs-attribute">x</span>: <span class="hljs-string">'--delete'</span>
+  <span class="hljs-attribute">p</span>: [<span class="hljs-string">'--public'</span>, <span class="hljs-string">'true'</span>]
+  <span class="hljs-attribute">n</span>: <span class="hljs-string">'--name'</span>
+  <span class="hljs-attribute">d</span>: <span class="hljs-string">'--desc'</span>
+  <span class="hljs-attribute">t</span>: <span class="hljs-string">'--type'</span>
+  <span class="hljs-attribute">a</span>: <span class="hljs-string">'--token'</span>
+  <span class="hljs-attribute">u</span>: <span class="hljs-string">'--user'</span>
+  <span class="hljs-attribute">v</span>: <span class="hljs-string">'--verbose'</span>
+  <span class="hljs-attribute">h</span>: <span class="hljs-string">'--help'</span>
 
 options = nopt known_opts, short_opts
 
-options.tty = tty <span class="keyword">unless</span> options.tty?</pre></div></div>
+options.tty = tty <span class="hljs-keyword">unless</span> options.tty?</pre></div></div>
             
         </li>
         
@@ -159,8 +159,8 @@ options.tty = tty <span class="keyword">unless</span> options.tty?</pre></div></
             </div>
             
             <div class="content"><div class='highlight'><pre>read_opts =
-  prompt: <span class="string">'Password: '</span>
-  silent: <span class="literal">yes</span></pre></div></div>
+  <span class="hljs-attribute">prompt</span>: <span class="hljs-string">'Password: '</span>
+  <span class="hljs-attribute">silent</span>: <span class="hljs-literal">yes</span></pre></div></div>
             
         </li>
         
@@ -175,9 +175,9 @@ options.tty = tty <span class="keyword">unless</span> options.tty?</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> options.help
-  console.log help
-  <span class="keyword">return</span> process.exit()</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> options.help
+  <span class="hljs-built_in">console</span>.log help
+  <span class="hljs-keyword">return</span> process.exit()</pre></div></div>
             
         </li>
         
@@ -192,10 +192,10 @@ options.tty = tty <span class="keyword">unless</span> options.tty?</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">ensureGistId</span></span> = (id) -&gt;
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">ensureGistId</span> = <span class="hljs-params">(id)</span> -&gt;</span>
   id  = (url.parse id).pathname
-  id  = id.split(<span class="string">'/'</span>).pop()
-  <span class="keyword">return</span> id</pre></div></div>
+  id  = id.split(<span class="hljs-string">'/'</span>).pop()
+  <span class="hljs-keyword">return</span> id</pre></div></div>
             
         </li>
         
@@ -210,34 +210,34 @@ options.tty = tty <span class="keyword">unless</span> options.tty?</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> options.fetch
-  client = <span class="keyword">new</span> Client
-  <span class="keyword">return</span> client.get <span class="string">"/<span class="subst">#{ensureGistId(options.fetch)}</span>"</span>, (error, gist) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> options.fetch
+  client = <span class="hljs-keyword">new</span> Client
+  <span class="hljs-keyword">return</span> client.get <span class="hljs-string">"/<span class="hljs-subst">#{ensureGistId(options.fetch)}</span>"</span>, <span class="hljs-function"><span class="hljs-params">(error, gist)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
 
-    <span class="keyword">try</span>
+    <span class="hljs-keyword">try</span>
       files = Object.keys(gist.files)
-    <span class="keyword">catch</span> error
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Gist not found'</span>)
+    <span class="hljs-keyword">catch</span> error
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'Gist not found'</span>)
 
-    multiple = files.length &gt; <span class="number">1</span>
+    multiple = files.length &gt; <span class="hljs-number">1</span>
 
-    <span class="keyword">unless</span> multiple
-      <span class="keyword">return</span> process.stdout.write gist.files[files[<span class="number">0</span>]].content
+    <span class="hljs-keyword">unless</span> multiple
+      <span class="hljs-keyword">return</span> process.stdout.write gist.files[files[<span class="hljs-number">0</span>]].content
 
     ret = []
-    <span class="keyword">for</span> file <span class="keyword">in</span> files
+    <span class="hljs-keyword">for</span> file <span class="hljs-keyword">in</span> files
       ret.push(
         [ file
-        , <span class="string">'\n'</span>
-        , <span class="keyword">new</span> Array(file.length + <span class="number">1</span>).join(<span class="string">'='</span>)
-        , <span class="string">'\n\n'</span>
+        , <span class="hljs-string">'\n'</span>
+        , <span class="hljs-keyword">new</span> Array(file.length + <span class="hljs-number">1</span>).join(<span class="hljs-string">'='</span>)
+        , <span class="hljs-string">'\n\n'</span>
         , gist.files[file].content
         ]
-        .join(<span class="string">''</span>)
+        .join(<span class="hljs-string">''</span>)
       )
 
-    console.log ret.join(<span class="string">'\r\n'</span>)
+    <span class="hljs-built_in">console</span>.log ret.join(<span class="hljs-string">'\r\n'</span>)
 
 files = options.argv.remain</pre></div></div>
             
@@ -254,7 +254,7 @@ files = options.argv.remain</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>is_gentoken = options.gentoken <span class="keyword">is</span> <span class="literal">yes</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>is_gentoken = options.gentoken <span class="hljs-keyword">is</span> <span class="hljs-literal">yes</span></pre></div></div>
             
         </li>
         
@@ -269,7 +269,7 @@ files = options.argv.remain</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>is_stdin = options.argv.remain.length <span class="keyword">is</span> <span class="number">0</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>is_stdin = options.argv.remain.length <span class="hljs-keyword">is</span> <span class="hljs-number">0</span></pre></div></div>
             
         </li>
         
@@ -285,42 +285,42 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">loadConfig</span></span> = (callback) -&gt;
-  ask_password     = !!options.user <span class="keyword">and</span> !options.token
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">loadConfig</span> = <span class="hljs-params">(callback)</span> -&gt;</span>
+  ask_password     = !!options.user <span class="hljs-keyword">and</span> !options.token
 
-  options.user     = process.env.GITHUB_USER     <span class="keyword">unless</span> options.user
-  options.password = process.env.GITHUB_PASSWORD <span class="keyword">unless</span> options.password
-  options.token    = process.env.GISTA_TOKEN     <span class="keyword">unless</span> options.token
+  options.user     = process.env.GITHUB_USER     <span class="hljs-keyword">unless</span> options.user
+  options.password = process.env.GITHUB_PASSWORD <span class="hljs-keyword">unless</span> options.password
+  options.token    = process.env.GISTA_TOKEN     <span class="hljs-keyword">unless</span> options.token
 
-  <span class="function"><span class="title">gotPassword</span></span> = (error, password) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error
+  <span class="hljs-function"><span class="hljs-title">gotPassword</span> = <span class="hljs-params">(error, password)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
 
     options.password  = password
 
-    <span class="keyword">if</span> options.token
-      options.user      = <span class="literal">null</span>
-      options.password  = <span class="literal">null</span>
-      <span class="keyword">return</span> callback()
+    <span class="hljs-keyword">if</span> options.token
+      options.user      = <span class="hljs-literal">null</span>
+      options.password  = <span class="hljs-literal">null</span>
+      <span class="hljs-keyword">return</span> callback()
 
     task = async []
 
-    task.push <span class="string">'user'</span>     <span class="keyword">unless</span> options.user
-    task.push <span class="string">'password'</span> <span class="keyword">unless</span> options.password
+    task.push <span class="hljs-string">'user'</span>     <span class="hljs-keyword">unless</span> options.user
+    task.push <span class="hljs-string">'password'</span> <span class="hljs-keyword">unless</span> options.password
 
     task
-      .forEach (item, i, next) -&gt;
-        exec <span class="string">"git config --global github.<span class="subst">#{item}</span>"</span>, (error, stdout) -&gt;
-          <span class="keyword">return</span> next() <span class="keyword">if</span> error
+      .forEach <span class="hljs-function"><span class="hljs-params">(item, i, next)</span> -&gt;</span>
+        exec <span class="hljs-string">"git config --global github.<span class="hljs-subst">#{item}</span>"</span>, <span class="hljs-function"><span class="hljs-params">(error, stdout)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> next() <span class="hljs-keyword">if</span> error
           options[item] = stdout.trim()
           next()
-      .exec (error, results) -&gt;
-        has_userpass  = (options.user <span class="keyword">and</span> options.password) <span class="keyword">isnt</span> <span class="literal">null</span>
+      .exec <span class="hljs-function"><span class="hljs-params">(error, results)</span> -&gt;</span>
+        has_userpass  = (options.user <span class="hljs-keyword">and</span> options.password) <span class="hljs-keyword">isnt</span> <span class="hljs-literal">null</span>
 
-        <span class="keyword">unless</span> has_userpass
-          options.user = options.password = <span class="literal">null</span>
+        <span class="hljs-keyword">unless</span> has_userpass
+          options.user = options.password = <span class="hljs-literal">null</span>
 
-        <span class="keyword">if</span> error
-          <span class="keyword">return</span> callback error
+        <span class="hljs-keyword">if</span> error
+          <span class="hljs-keyword">return</span> callback error
 
         callback()</pre></div></div>
             
@@ -337,12 +337,12 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">if</span> ask_password
-    options.token    = <span class="literal">null</span>
-    options.password = <span class="literal">null</span>
-    <span class="keyword">return</span> read(read_opts, gotPassword)
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">if</span> ask_password
+    options.token    = <span class="hljs-literal">null</span>
+    options.password = <span class="hljs-literal">null</span>
+    <span class="hljs-keyword">return</span> read(read_opts, gotPassword)
 
-  gotPassword(<span class="literal">null</span>, options.password)</pre></div></div>
+  gotPassword(<span class="hljs-literal">null</span>, options.password)</pre></div></div>
             
         </li>
         
@@ -357,7 +357,7 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">generateToken</span></span> = -&gt;</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">generateToken</span> = -&gt;</span></pre></div></div>
             
         </li>
         
@@ -372,7 +372,7 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  client.path = <span class="string">''</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>  client.path = <span class="hljs-string">''</span></pre></div></div>
             
         </li>
         
@@ -388,9 +388,9 @@ could be stored.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  authorization =
-    scopes    : [ <span class="string">'gist'</span> ]
-    note      : <span class="string">'gista CLI'</span>
-    note_url  : <span class="string">'https://github.com/tim-smart/gista'</span></pre></div></div>
+    scopes    : [ <span class="hljs-string">'gist'</span> ]
+    note      : <span class="hljs-string">'gista CLI'</span>
+    note_url  : <span class="hljs-string">'https://github.com/tim-smart/gista'</span></pre></div></div>
             
         </li>
         
@@ -405,14 +405,14 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  client.post <span class="string">'/authorizations'</span>, authorization, (error, data) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error
+            <div class="content"><div class='highlight'><pre>  client.post <span class="hljs-string">'/authorizations'</span>, authorization, <span class="hljs-function"><span class="hljs-params">(error, data)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
 
-    <span class="keyword">unless</span> data.token
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error <span class="string">'Token generation refused by Github.'</span>
+    <span class="hljs-keyword">unless</span> data.token
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'Token generation refused by Github.'</span>
 
-    console.log data.token
-    console.error <span class="string">"""\nFor continued use of this token by the gista cli tool, make
+    <span class="hljs-built_in">console</span>.log data.token
+    <span class="hljs-built_in">console</span>.error <span class="hljs-string">"""\nFor continued use of this token by the gista cli tool, make
                      you assign it to the GISTA_TOKEN environment variable in your
                      bash profile."""</span></pre></div></div>
             
@@ -429,9 +429,9 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">starGist</span></span> = -&gt;
-  client.put <span class="string">"/<span class="subst">#{ensureGistId(options.star)}</span>/star"</span>, (error) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">starGist</span> = -&gt;</span>
+  client.put <span class="hljs-string">"/<span class="hljs-subst">#{ensureGistId(options.star)}</span>/star"</span>, <span class="hljs-function"><span class="hljs-params">(error)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error</pre></div></div>
             
         </li>
         
@@ -446,9 +446,9 @@ could be stored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">deleteGist</span></span> = -&gt;
-  client.<span class="keyword">delete</span> <span class="string">"/<span class="subst">#{ensureGistId(options.<span class="keyword">delete</span>)}</span>"</span>, (error) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">deleteGist</span> = -&gt;</span>
+  client.<span class="hljs-keyword">delete</span> <span class="hljs-string">"/<span class="hljs-subst">#{ensureGistId(options.<span class="hljs-keyword">delete</span>)}</span>"</span>, <span class="hljs-function"><span class="hljs-params">(error)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error</pre></div></div>
             
         </li>
         
@@ -464,21 +464,21 @@ on to <code>createGist</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">fromStdin</span></span> = -&gt;
-  data  = <span class="string">''</span>
-  first = <span class="literal">yes</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">fromStdin</span> = -&gt;</span>
+  data  = <span class="hljs-string">''</span>
+  first = <span class="hljs-literal">yes</span>
   process.stdin.resume()
-  process.stdin.setEncoding <span class="string">'utf8'</span>
-  process.stdin.<span class="literal">on</span> <span class="string">'data'</span>, (chunk) -&gt;
-    <span class="keyword">if</span> options.verbose
-      <span class="keyword">if</span> first
-        process.stdout.write(<span class="string">"&gt; "</span>)
-        first = <span class="literal">false</span>
-      process.stdout.write chunk.split(<span class="string">"\n"</span>).join(<span class="string">"\n&gt; "</span>)
+  process.stdin.setEncoding <span class="hljs-string">'utf8'</span>
+  process.stdin.<span class="hljs-literal">on</span> <span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-params">(chunk)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> options.verbose
+      <span class="hljs-keyword">if</span> first
+        process.stdout.write(<span class="hljs-string">"&gt; "</span>)
+        first = <span class="hljs-literal">false</span>
+      process.stdout.write chunk.split(<span class="hljs-string">"\n"</span>).join(<span class="hljs-string">"\n&gt; "</span>)
     data += chunk
-  process.stdin.<span class="literal">on</span> <span class="string">'end'</span>, -&gt;
-    process.stdout.write(<span class="string">"EOF\n"</span>) <span class="keyword">if</span> options.verbose
-    createGist [name: options.name <span class="keyword">or</span> <span class="string">'stdout.txt'</span>, content: data]</pre></div></div>
+  process.stdin.<span class="hljs-literal">on</span> <span class="hljs-string">'end'</span>,<span class="hljs-function"> -&gt;</span>
+    process.stdout.write(<span class="hljs-string">"EOF\n"</span>) <span class="hljs-keyword">if</span> options.verbose
+    createGist [<span class="hljs-attribute">name</span>: options.name <span class="hljs-keyword">or</span> <span class="hljs-string">'stdout.txt'</span>, <span class="hljs-attribute">content</span>: data]</pre></div></div>
             
         </li>
         
@@ -494,17 +494,17 @@ onto <code>createGist</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">fromFiles</span></span> = -&gt;
-  <span class="keyword">throw</span> <span class="keyword">new</span> Error <span class="string">'Over 10 files.'</span> <span class="keyword">if</span> files.length &gt; <span class="number">10</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">fromFiles</span> = -&gt;</span>
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'Over 10 files.'</span> <span class="hljs-keyword">if</span> files.length &gt; <span class="hljs-number">10</span>
 
   async(files)
-    .map (file, i, next) -&gt;
-      fs.readFile file, <span class="string">'utf8'</span>, (error, content) -&gt;
-        <span class="keyword">return</span> next error <span class="keyword">if</span> error
+    .map <span class="hljs-function"><span class="hljs-params">(file, i, next)</span> -&gt;</span>
+      fs.readFile file, <span class="hljs-string">'utf8'</span>, <span class="hljs-function"><span class="hljs-params">(error, content)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> next error <span class="hljs-keyword">if</span> error
         name = options.name || path.basename file
-        next <span class="literal">null</span>, name : name, content : content
-    .exec (error, results) -&gt;
-      <span class="keyword">throw</span> error <span class="keyword">if</span> error
+        next <span class="hljs-literal">null</span>, name : name, content : content
+    .exec <span class="hljs-function"><span class="hljs-params">(error, results)</span> -&gt;</span>
+      <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
       createGist results.array()</pre></div></div>
             
         </li>
@@ -521,32 +521,32 @@ and post back the link.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">createGist</span></span> = (files) -&gt;
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">createGist</span> = <span class="hljs-params">(files)</span> -&gt;</span>
   is_public = options.public
 
-  <span class="keyword">unless</span> is_public?
-    is_public = <span class="literal">no</span>
+  <span class="hljs-keyword">unless</span> is_public?
+    is_public = <span class="hljs-literal">no</span>
 
   gist =
     public : is_public
     files  : {}
 
-  gist.description = options.desc <span class="keyword">if</span> options.desc
+  gist.description = options.desc <span class="hljs-keyword">if</span> options.desc
 
-  type = <span class="keyword">if</span> options.type <span class="keyword">then</span> <span class="string">'.'</span> + options.type <span class="keyword">or</span> <span class="literal">null</span>
+  type = <span class="hljs-keyword">if</span> options.type <span class="hljs-keyword">then</span> <span class="hljs-string">'.'</span> + options.type <span class="hljs-keyword">or</span> <span class="hljs-literal">null</span>
 
-  <span class="keyword">for</span> file <span class="keyword">in</span> files
+  <span class="hljs-keyword">for</span> file <span class="hljs-keyword">in</span> files
     name = file.name
-    name = name + type <span class="keyword">if</span> type
+    name = name + type <span class="hljs-keyword">if</span> type
     gist.files[name] =
       content : file.content
 
-  <span class="function"><span class="title">doneGist</span></span> = (error, gist) -&gt;
-    <span class="keyword">throw</span> error <span class="keyword">if</span> error
-    <span class="keyword">throw</span> <span class="keyword">new</span> Error(gist.message) <span class="keyword">if</span> gist.message
+  <span class="hljs-function"><span class="hljs-title">doneGist</span> = <span class="hljs-params">(error, gist)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(gist.message) <span class="hljs-keyword">if</span> gist.message
 
-    <span class="keyword">return</span> process.stdout.write gist.html_url <span class="keyword">unless</span> options.tty
-    console.log gist.html_url</pre></div></div>
+    <span class="hljs-keyword">return</span> process.stdout.write gist.url <span class="hljs-keyword">unless</span> options.tty
+    <span class="hljs-built_in">console</span>.log gist.url</pre></div></div>
             
         </li>
         
@@ -561,10 +561,10 @@ and post back the link.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">if</span> options.edit
-    <span class="keyword">return</span> client.patch <span class="string">"/<span class="subst">#{ensureGistId(options.edit)}</span>"</span>, gist, doneGist
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">if</span> options.edit
+    <span class="hljs-keyword">return</span> client.patch <span class="hljs-string">"/<span class="hljs-subst">#{ensureGistId(options.edit)}</span>"</span>, gist, doneGist
 
-  client.post <span class="string">''</span>, gist, doneGist</pre></div></div>
+  client.post <span class="hljs-string">''</span>, gist, doneGist</pre></div></div>
             
         </li>
         
@@ -580,18 +580,18 @@ or parse out the files.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>loadConfig (error) -&gt;
-  <span class="keyword">throw</span> error <span class="keyword">if</span> error
+            <div class="content"><div class='highlight'><pre>loadConfig <span class="hljs-function"><span class="hljs-params">(error)</span> -&gt;</span>
+  <span class="hljs-keyword">throw</span> error <span class="hljs-keyword">if</span> error
 
-  client = <span class="keyword">new</span> Client
+  client = <span class="hljs-keyword">new</span> Client
     user      : options.user
     password  : options.password
     token     : options.token
 
-  <span class="keyword">return</span> starGist()      <span class="keyword">if</span> options.star
-  <span class="keyword">return</span> deleteGist()    <span class="keyword">if</span> options.<span class="keyword">delete</span>
-  <span class="keyword">return</span> generateToken() <span class="keyword">if</span> is_gentoken
-  <span class="keyword">return</span> fromStdin()     <span class="keyword">if</span> is_stdin
+  <span class="hljs-keyword">return</span> starGist()      <span class="hljs-keyword">if</span> options.star
+  <span class="hljs-keyword">return</span> deleteGist()    <span class="hljs-keyword">if</span> options.<span class="hljs-keyword">delete</span>
+  <span class="hljs-keyword">return</span> generateToken() <span class="hljs-keyword">if</span> is_gentoken
+  <span class="hljs-keyword">return</span> fromStdin()     <span class="hljs-keyword">if</span> is_stdin
   fromFiles()</pre></div></div>
             
         </li>
