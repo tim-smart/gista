@@ -281,8 +281,8 @@ createGist = (files) ->
     throw error if error
     throw new Error(gist.message) if gist.message
 
-    return process.stdout.write gist.html_url unless options.tty
-    console.log gist.html_url
+    return process.stdout.write gist.url unless options.tty
+    console.log gist.url
 
   # Are we an edit operation?
   if options.edit
